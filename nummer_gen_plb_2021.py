@@ -41,24 +41,48 @@ def main():
         [sg.In(key="csv_file_in_pad", size=(60, 10))],
         [sg.FileBrowse(target="csv_file_in_pad")],
         [sg.Text()],
-        [sg.CalendarButton("Datum")],
+        [sg.CalendarButton("Datum", target=(1, 0), key='datum')],
+
+
+
+
+
+
+
+        [sg.Frame(layout=[
+            [sg.Checkbox("gebruik template", key="gebruik_template", default=False)],
+            [sg.Text("template", size=(15, 1)), sg.Input("??????????????", key="template")],
+            [sg.Checkbox("gebruik slice rechts", key="slice_rechts_check", default=False)],
+            [sg.Text("slice rechts", size=(15, 1)), sg.Input(3, key="slice_rechts")],
+            [sg.Checkbox("gebruik slice links", key="slice_links_check", default=False)],
+            [sg.Text("slice links", size=(15, 1)), sg.Input(3, key="slice_links")],
+            [sg.Text()],
+            [sg.Checkbox("SSCC18", key="sscc18", default=False, size=(10, 1)),
+             sg.Checkbox("mod10 (ean13 - ean8)", key = "ean13", default=False)],
+
+            [sg.Radio('Nederlands', "RADIO1",key="radio", default=True, size=(10, 1)),
+             sg.Radio('Duits', "RADIO1")]], title='Options', title_color='red', relief=sg.RELIEF_SUNKEN,
+            tooltip='taal voor sluitetiket')],
+
+
         [sg.Text()],
-        [
-            sg.Checkbox("gebruik template", key="gebruik_template", default=False),
-            sg.Checkbox("SSCC18", default=False),
-            sg.Checkbox("mod10 (ean13 - ean8)", default=False),
-        ],
-        [sg.Text()],
-        [sg.Text("template", size=(15, 1)), sg.Input("??????????????", key="template")],
-        [sg.Checkbox("gebruik slice rechts", key="slice_rechts_check", default=False)],
-        [sg.Text("slice rechts", size=(15, 1)), sg.Input(3, key="slice_rechts")],
-        [sg.Checkbox("gebruik slice links", key="slice_links_check", default=False)],
-        [sg.Text("slice links", size=(15, 1)), sg.Input(3, key="slice_links")],
-        [sg.Text()],
-        [
-            sg.Text("Totaal aantal", size=(15, 1)),
+        # [
+        #     sg.Checkbox("gebruik template", key="gebruik_template", default=False),
+        #     sg.Checkbox(),
+        #     sg.Checkbox(),
+        # ],
+        # [sg.Text()],
+        # [sg.Text("template", size=(15, 1)), sg.Input("??????????????", key="template")],
+        # [sg.Checkbox("gebruik slice rechts", key="slice_rechts_check", default=False)],
+        # [sg.Text("slice rechts", size=(5, 1)), sg.Input(3, key="slice_rechts")],
+        # [sg.Checkbox("gebruik slice links", key="slice_links_check", default=False)],
+        # [sg.Text("slice links", size=(5, 1)), sg.Input(3, key="slice_links")],
+        # [sg.Text()],
+        # [
+        [sg.Text("Totaal aantal", size=(15, 1)),
             sg.Input(361_000, key="totaal_aantal"),
         ],
+
         [sg.Text("Beginnummer", size=(15, 1)), sg.InputText(1, key="begin_nummer")],
         [sg.Text("Veelvoud", size=(15, 1)), sg.InputText(1, key="veelvoud")],
         [sg.Text("posities", size=(15, 1)), sg.InputText(18, key="posities")],
@@ -164,7 +188,9 @@ def main():
                 posities,
                 mes,
                 aantal_per_rol,
-                vlg=0,
+                0,
+                prefix,
+                postfix
             )
             # eerst bekijken of checkboxes aan staan dan aantal vpds
 
@@ -278,6 +304,8 @@ def main():
             if aantal_vdps == 1:
                 print("verwerk de lijst zoals ie nu is")
 
+
+
                 # lijst in lijst maken
 
             else:
@@ -289,6 +317,11 @@ def main():
                 combinatie_verdeling = combinaties(tot_comb_,aantal_vdps, mes)
 
                 ic(combinatie_verdeling)
+
+                for value in values.items():
+                    print(value)
+
+                print(values[0])
 
 
 

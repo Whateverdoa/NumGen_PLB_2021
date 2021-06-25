@@ -1,6 +1,9 @@
 from .calculations import *
 from data.data_definitions import *
+import pandas as pd
 
+test_df = pd.DataFrame(nummer_lijst_bouwer(1,1000,"leeg.pdf",6,3,100),
+                       columns=["kolom1", "pdf", "omschrijving"], dtype="str")
 
 def test_delen():
     test = delen(1000, 3)
@@ -29,3 +32,10 @@ def test_combinaties_per_vdp_berekenen():
     test = comp(9, 2, 3)
 
     assert test == [5, 4]
+
+
+def test_headers_for_totaal_kolommen():
+    test = headers_for_totaal_kolommen(test_df)
+
+    assert test == []
+

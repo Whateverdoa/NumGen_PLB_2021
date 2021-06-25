@@ -6,7 +6,7 @@ from pandas import DataFrame, Series
 from calculations.calculations import *
 
 
-def nummer_lijst_bouwer(begin_nummer, totaal, pdf, posities, mes, aantal_per_rol, vlg=0):
+def nummer_lijst_bouwer(begin_nummer, totaal, pdf, posities, mes, aantal_per_rol, vlg=0, prefix="", postfix=""):
     """
     met de lijst output word een dataframe gemaakt"""
     num_lijst = []
@@ -16,7 +16,7 @@ def nummer_lijst_bouwer(begin_nummer, totaal, pdf, posities, mes, aantal_per_rol
         '''list comp voor maken nummer lijst, 3 kolommen
         kijk voor benamingen in project lijst bewerken'''
         eind = begin_nummer + totaal
-        nummers = [(f'{x:>{vlg}{posities}}', f'{pdf}', '') for x in range(begin_nummer, eind)]
+        nummers = [(f'{prefix}{x:>{vlg}{posities}}{postfix}', f'{pdf}', '') for x in range(begin_nummer, eind)]
         nummers_df = pd.DataFrame(nummers, columns=["kolom1", "pdf", "omschrijving"], dtype="str")
         return nummers
 
@@ -79,7 +79,7 @@ def roll():
     
     def rol_van_dataframe(dataframe_rol, functiewikkel, functie_taal_rolnum):
         begin, eind, aantal = begin_eind_dataframe(dataframe_rol)
-        sluitetiket = f"test {functie_taal_rolnum + 1} | {begin} - {eind} | {aantal} etiketten"
+        sluitetiket = f"Rol {functie_taal_rolnum + 1} | {begin} - {eind} | {aantal} etiketten"
 
         dfwikkel = dataframe_rol.copy()
         dfwikkel.loc['pdf'] = "stans.pdf"

@@ -112,8 +112,6 @@ def combinaties_uit_rollen():
     return check
 
 
-
-
 def dataframe_copy_met_stans():
 
     def inloop_uitloop(dataframe_in, functiewikkel):
@@ -124,6 +122,7 @@ def dataframe_copy_met_stans():
 
         return inloop_uitloop_slice
     return inloop_uitloop
+
 
 def wikkel_formule():
 
@@ -140,6 +139,20 @@ def wikkel_formule():
     return wikkel
 
 de_uitgerekenende_wikkel = wikkel_formule()
+
+def headers_for_totaal_kolommen(dataframe_rol):
+    aantal, kolommen = dataframe_rol.shape
+    df_rol_kolommen_lijst = dataframe_rol.columns.to_list()
+    count = 1
+    kolom_naam_lijst_naar_mes = []
+    for _ in range(kolommen):
+        for kolomnaam in df_rol_kolommen_lijst:
+            # print(kolomnaam, count)
+            header = f'{kolomnaam}_{count}'
+            kolom_naam_lijst_naar_mes.append(header)
+        count += 1
+
+    return kolom_naam_lijst_naar_mes
 
 
 
