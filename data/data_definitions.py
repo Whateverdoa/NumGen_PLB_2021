@@ -5,7 +5,7 @@ from pandas import DataFrame, Series
 
 from calculations.calculations import *
 
-
+# todo toevoegen ean13  etc en sscc18
 def nummer_lijst_bouwer(begin_nummer, totaal, pdf, posities, mes, aantal_per_rol, vlg=0, prefix="", postfix=""):
     """
     met de lijst output word een dataframe gemaakt"""
@@ -82,18 +82,28 @@ def roll():
         sluitetiket = f"Rol {functie_taal_rolnum + 1} | {begin} - {eind} | {aantal} etiketten"
 
         dfwikkel = dataframe_rol.copy()
-        dfwikkel.loc['pdf'] = "stans.pdf"
+        dfwikkel['pdf'] = "stans.pdf"
         sluit = dfwikkel[:1]
-        sluit.loc['omschrijving'] = sluitetiket
+        sluit['omschrijving'] = sluitetiket
 
         # def maken want zo maak je ook gewoon de inloop en uitloop in de laatste stap.
         dfwikkel_a = dataframe_rol.copy()
-        dfwikkel_a.loc['pdf'] = "stans.pdf"
+        dfwikkel_a['pdf'] = "stans.pdf"
         dfwikkel1 = dfwikkel_a[:2]
         dfwikkel2 = dfwikkel_a[:functiewikkel]
 
-        rol_met_wikkel_en_sluit: Union[DataFrame, Series] = pd.concat([dfwikkel1, sluit, dfwikkel2, dataframe_rol]).reset_index()
+        rol_met_wikkel_en_sluit: Union[DataFrame, Series] = pd.concat([dfwikkel1, sluit, dfwikkel2, dataframe_rol]).reset_index(drop=True)
+
+        ic(rol_met_wikkel_en_sluit.head(20))
 
         return rol_met_wikkel_en_sluit
 
     return rol_van_dataframe
+
+# todo summary
+def roll_summary():
+    # maak een dataframe als in num gen 2.0
+    def summary_rol_van_dataframe(dataframe_rol, functie_taal_rolnum):
+        begin, eind, aantal = begin_eind_dataframe(dataframe_rol)
+        sluitetiket = f"Rol {functie_taal_rolnum + 1} | {begin} - {eind} | {aantal} etiketten"
+

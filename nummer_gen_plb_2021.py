@@ -196,7 +196,7 @@ def main():
 
             te_bewerken_dataframe_voor_plb_2020 = pd.DataFrame(
                 eerste_lijst_uit_input,
-                columns=["Kolom_1", "pdf", "omschrijving"],
+                columns=["Kolom", "pdf", "omschrijving"],
                 dtype="str",
             )
 
@@ -206,14 +206,14 @@ def main():
             if checkbox_slice_links:
                 te_bewerken_dataframe_voor_plb_2020[
                     "slice_links"
-                ] = te_bewerken_dataframe_voor_plb_2020["Kolom_1"].apply(
+                ] = te_bewerken_dataframe_voor_plb_2020["Kolom"].apply(
                     lambda x: x[:aantal_posities_uit_links]
                 )
 
             if checkbox_slice_rechts:
                 te_bewerken_dataframe_voor_plb_2020[
                     "slice_rechts"
-                ] = te_bewerken_dataframe_voor_plb_2020["Kolom_1"].apply(
+                ] = te_bewerken_dataframe_voor_plb_2020["Kolom"].apply(
                     lambda x: x[-aantal_posities_uit_rechts:]
                 )
 
@@ -241,13 +241,14 @@ def main():
 
             if check_template and template_length_checker(begin_nummer_to_check, template_array_truths):
                 te_bewerken_dataframe_voor_plb_2020['hr_template']=\
-                    te_bewerken_dataframe_voor_plb_2020["Kolom_1"].apply(lambda x: nieuw_nummer(x,
+                    te_bewerken_dataframe_voor_plb_2020["Kolom"].apply(lambda x: nieuw_nummer(x,
                                                                                     template10,
                                                                                     template_array,
                                                                                     compare_template_with_number_list()))
             ic(te_bewerken_dataframe_voor_plb_2020.head())
 
             #todo columnnames for endresult
+
             #############################################
 
             # space for other checkboxes
@@ -262,12 +263,18 @@ def main():
             ic(totaal_aantal_in_dataframe)
 
             lijst_met_alle_dataframe_rollen = dataframe_cutter(te_bewerken_dataframe_voor_plb_2020, aantal_per_rol)
+
             rol = roll()
-            rollen = [(index, rol(df, de_uitgerekenende_wikkel(aantal_per_rol, hoogte, kern), index)) for index, df in enumerate(lijst_met_alle_dataframe_rollen)]
+
+            rollen = [rol(df, de_uitgerekenende_wikkel(aantal_per_rol, hoogte, kern), index)
+                      for index, df in enumerate(lijst_met_alle_dataframe_rollen)]
+            # list of tuples
 
             # ic(rollen)
             ic(rollen[0][:10])
             ic(rollen[1][:10])
+
+
 
 
 
@@ -290,23 +297,26 @@ def main():
 
             ic(len(totaal_aan_rollen))
 
-
-
-
+            kollom_namen = headers_for_totaal_kolommen(te_bewerken_dataframe_voor_plb_2020, mes)
+            ic(kollom_namen)
 
             ##########################################
 
-
-
-
-
-
             if aantal_vdps == 1:
                 print("verwerk de lijst zoals ie nu is")
-
-
-
                 # lijst in lijst maken
+
+                combi = len(totaal_aan_rollen)//mes
+                ic(combi)
+                lijst_van_lijst_van_alle_rollen = lijst_opbreker(rollen, mes, combi)
+
+                ic(len(lijst_van_lijst_van_alle_rollen))
+
+                VDP = stapel_df_baan(lijst_van_lijst_van_alle_rollen)
+                VDP.columns=kollom_namen
+                # ic(VDP.shape)
+                # ic(vdp_blok.head())
+                VDP.to_csv("gtest1.csv")
 
             else:
                 tot_comb_ = combinaties_over_totale_order(len(te_bewerken_dataframe_voor_plb_2020),
@@ -318,11 +328,11 @@ def main():
 
                 ic(combinatie_verdeling)
 
-                for value in values.items():
-                    print(value)
+                ##################################
 
-                print(values[0])
-
+                # values from gUI
+                ic(values)
+                ###################################
 
 
 if __name__ == "__main__":
