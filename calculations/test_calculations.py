@@ -2,8 +2,9 @@ from .calculations import *
 from data.data_definitions import *
 import pandas as pd
 
-test_df = pd.DataFrame(nummer_lijst_bouwer(1,1000,"leeg.pdf",6,3,100),
+test_df = pd.DataFrame(nummer_lijst_bouwer(1, 1000, "leeg.pdf", 6, 3, 100),
                        columns=["kolom1", "pdf", "omschrijving"], dtype="str")
+
 
 def test_delen():
     test = delen(1000, 3)
@@ -39,3 +40,9 @@ def test_headers_for_totaal_kolommen():
 
     assert test == []
 
+
+def test_csv_name_giver():
+    naming = csv_name_giver()
+    test1 = naming("mike", 1, ".mike")
+    expected = "mike_1.mike"
+    assert test1 == expected

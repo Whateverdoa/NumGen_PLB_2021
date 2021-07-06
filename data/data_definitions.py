@@ -100,9 +100,10 @@ def roll():
 
     return rol_van_dataframe
 
-# todo summary
+#todo summary
 def roll_summary():
     # maak een dataframe als in num gen 2.0
+    # haal de data uit de VDP dataframe met begin en eind slice wikkel combi
     def summary_rol_van_dataframe(dataframe_rol, functie_taal_rolnum):
         begin, eind, aantal = begin_eind_dataframe(dataframe_rol)
         sluitetiket = f"Rol {functie_taal_rolnum + 1} | {begin} - {eind} | {aantal} etiketten"

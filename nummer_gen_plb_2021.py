@@ -3,6 +3,7 @@
 import PySimpleGUI as sg
 import os
 import pandas as pd
+from pathlib import Path
 import sys
 from icecream import ic
 from data.data_definitions import *
@@ -93,7 +94,7 @@ def main():
         ],
         [sg.Text("Mes", size=(15, 1)), sg.InputText(6, key="mes")],
         [sg.Text("Y_waarde", size=(15, 1)), sg.InputText(11, key="Y_waarde")],
-        [sg.Text("Wikkel", size=(15, 1)), sg.InputText(8, key="wikkel")],
+        # [sg.Text("Wikkel", size=(15, 1)), sg.InputText(8, key="wikkel")],
         [sg.Text("prefix", size=(15, 1)), sg.InputText("", key="prefix")],
         [sg.Text("postfix", size=(15, 1)), sg.InputText("", key="postfix")],
         [sg.Text("hoogte etiket", size=(15, 1)), sg.InputText(80, key="hoogte")],
@@ -141,7 +142,7 @@ def main():
             ic("ok")
 
             # print(button, values["order_number"], values["begin_nummer"], values["posities"])
-
+            pad = Path(values["folder_voor_vdp_map"])
             # datum = values["Datum"]
             # todo datetime    maken
             aantal_vdps = int(values['aantal_vdps'])
@@ -157,13 +158,15 @@ def main():
             ic(begin_nummer_to_check)
             aantal_per_rol = int(values["aantal_per_rol"])
             Y_waarde = int(values["Y_waarde"])
-            wikkel = int(values["wikkel"])
+
             hoogte = int(values["hoogte"])
             kern = int(values["kern"])
             prefix = values["prefix"]
             postfix = values["postfix"]
             mes = int(values["mes"])
             opmerkingen = values["opmerkingen"]
+
+            wikkel = de_uitgerekenende_wikkel(aantal_per_rol,hoogte, kern)
 
             checkbox_slice_rechts = values["slice_rechts_check"]
             aantal_posities_uit_rechts = int(values["slice_rechts"])
@@ -297,8 +300,8 @@ def main():
 
             ic(len(totaal_aan_rollen))
 
-            kollom_namen = headers_for_totaal_kolommen(te_bewerken_dataframe_voor_plb_2020, mes)
-            ic(kollom_namen)
+            kolom_namen = headers_for_totaal_kolommen(te_bewerken_dataframe_voor_plb_2020, mes)
+            ic(kolom_namen)
 
             ##########################################
 
@@ -306,17 +309,30 @@ def main():
                 print("verwerk de lijst zoals ie nu is")
                 # lijst in lijst maken
 
-                combi = len(totaal_aan_rollen)//mes
-                ic(combi)
-                lijst_van_lijst_van_alle_rollen = lijst_opbreker(rollen, mes, combi)
+                vdp_alle_combinaties = len(totaal_aan_rollen)//mes
+                ic(vdp_alle_combinaties)
+
+                lijst_van_lijst_van_alle_rollen = lijst_opbreker(rollen, mes, vdp_alle_combinaties)
 
                 ic(len(lijst_van_lijst_van_alle_rollen))
 
+                # dit maakt een 'vdpblok' van de combinaties en rollen zonder in uitloop
                 VDP = stapel_df_baan(lijst_van_lijst_van_alle_rollen)
-                VDP.columns=kollom_namen
+
+                ###############################################
+                # checking vdp objects
+
+                VDP.columns = kolom_namen
+                ic(kolom_namen)
+                ic(VDP.dtypes)
                 # ic(VDP.shape)
                 # ic(vdp_blok.head())
-                VDP.to_csv("gtest1.csv")
+                ################################################
+                # naamgeving vdp csv zonder index alles als string
+
+                vdp_maker(VDP, mes, Y_waarde, aantal_per_rol, wikkel).to_csv('vdp_def_test1.csv')
+
+                # VDP.to_csv("gteststr1.csv")
 
             else:
                 tot_comb_ = combinaties_over_totale_order(len(te_bewerken_dataframe_voor_plb_2020),
@@ -327,6 +343,43 @@ def main():
                 combinatie_verdeling = combinaties(tot_comb_,aantal_vdps, mes)
 
                 ic(combinatie_verdeling)
+
+                vdp_alle_combinaties = len(totaal_aan_rollen) // mes
+                ic(vdp_alle_combinaties)
+                lijst_van_lijst_van_alle_rollen = lijst_opbreker(rollen,
+                                                                 mes,
+                                                                 vdp_alle_combinaties)
+
+                ic(len(lijst_van_lijst_van_alle_rollen))
+
+                verdeelde_lijst_van_vdps = verdeling_met_slice(lijst_van_lijst_van_alle_rollen,
+                                                               combinatie_verdeling)
+                ic(pad)
+
+                pdf_kol = filter_kolommen_pdf(mes)
+                # simpel begin toe te voegen is een pad
+                for count, vdp in enumerate(verdeelde_lijst_van_vdps):
+                    naam = vdpnaam("test3", count+1)
+                    verwerkte_vdp = stapel_df_baan(vdp)
+                    verwerkte_vdp.columns = kolom_namen
+
+                    # WERKT
+                    # vdp_maker(verwerkte_vdp, mes, Y_waarde, aantal_per_rol, wikkel).to_csv(naam)
+                    # verwerk_vdp.to_csv(naam)
+
+                    inloop_uitloop_stans(verwerkte_vdp,wikkel,Y_waarde, pdf_kol).to_csv(naam, index=False)
+
+
+
+
+
+
+
+
+                #todo pad module
+                #todo naamgever csv files
+
+
 
                 ##################################
 

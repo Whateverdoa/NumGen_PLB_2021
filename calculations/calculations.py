@@ -1,6 +1,7 @@
 """ the calculations represent decisions or planning.
 They don't affect the world when they run"""
 import math
+import itertools
 import pandas as pd
 from icecream import ic
 
@@ -48,6 +49,7 @@ combinaties_over_totale_order = combinaties_berekenen()
 
 
 def combinaties_per_vdp_berekenen():
+
     def lijst_combinaties(totaal_aantal_combinaties, aantal_vdps, mes):
 
         combinatie_lijst = []
@@ -157,9 +159,9 @@ def headers_for_totaal_kolommen(dataframe_rol, mes):
 
 
 def verdeling_met_slice(funclijst, funcverddeellijst):
-    ''' te verdelen lijst en een lijst met verdeelwaardes in
+    """ te verdelen lijst en een lijst met verdeelwaardes in
     uit => lijsten in lijst verdeeld
-    '''
+    """
     verdeelde_lijst = []
     begin = 0
     einde = funcverddeellijst[0]
@@ -196,7 +198,8 @@ def stapel_df_baan(lijst_in):
         vdp_stapel.append(pd.concat(lijst_combi_df, axis=1))
 
     vdp = pd.concat(vdp_stapel, axis=0)
-    return vdp
+
+    return vdp.reset_index(drop=True)
 
 
 def VDP_inloop_uitloop():
@@ -217,40 +220,51 @@ def VDP_inloop_uitloop():
 
     def vdp_met_in_en__uit(vdp_dataframe, mes, etiket_y,aantal_per_rol, wikkel):
         """voegt in en uitloop toe aan de vdp,
-        # todo zoek nog even naar de constante waardes
+
         voor de inloop sluit en uitloop sluit etiketten"""
 
         kolomnaam_vervang_waarde = filter_kolommen_pdf(mes)
         inloop = (etiket_y * 10) - wikkel
+        print(vdp_dataframe.columns)
 
         # kopieer de dataframe
-        # 1 keer voor echte data en 1 keer voor de loop
-        begin_inloop = vdp_dataframe.copy()
+        # 1 keer voor echte data en 1 keer voor de in  uitloop
+        # begin_inloop = vdp_dataframe.copy()
         df_voor_roldata = vdp_dataframe.copy()
 
-        # selecteer sluit etiket
-        begin_inloop_sluit = begin_inloop.iloc[2:3]
 
-        roldata_begin = wikkel + 4
+        # selecteer sluit etiket
+        begin_inloop_sluit = df_voor_roldata.iloc[2:3]
+
+        roldata_begin = wikkel + 3
         roldata_eind = roldata_begin + etiket_y
 
         # echte begin data
         roldata = df_voor_roldata.iloc[roldata_begin:roldata_eind]
 
         # verander leeg naar stans.pdf voor inloop en uitloop
-        begin_inloop[kolomnaam_vervang_waarde] = "stans.pdf"
+
+        begin_inloop = vdp_dataframe.copy()
+        # begin_inloop.loc[~begin_inloop.index.duplicated(), :]
+        ic(begin_inloop.index.is_unique)
+        # begin_inloop[kolomnaam_vervang_waarde] = "stans.pdf"  # #todo werkt bij 1 maar niet bij meerdere
+        begin_inloop.replace("leeg.pdf", "stans.pdf")
+
         inloop_df = begin_inloop.iloc[4:inloop]
+        print(inloop_df.columns)
+        inloop_df[kolomnaam_vervang_waarde] = "stans.pdf"
 
         # echte uitloop data
         data_uitloop = df_voor_roldata[-etiket_y:]
         uitloop = (etiket_y * 10) - wikkel
         uitloop_df = begin_inloop.iloc[-uitloop:]
+        uitloop_df[kolomnaam_vervang_waarde] = "stans.pdf"
+
 
         # todo berekenen ish met rol
-        b_eindsluit = -(aantal_per_rol + wikkel +1)
+        b_eindsluit = -(aantal_per_rol + wikkel+1)
         eindsluit = -(aantal_per_rol + wikkel)
         uitloopsluit = begin_inloop.iloc[b_eindsluit: eindsluit]
-
 
         # voeg alles samen voor een vdp
         vdp_met_in_en_uitloop = pd.concat([
@@ -269,5 +283,81 @@ def VDP_inloop_uitloop():
 
         return vdp_met_in_en_uitloop
 
+    return vdp_met_in_en__uit
+
+
 vdp_maker = VDP_inloop_uitloop()
+
+
+def filter_kolommen_pdf(mes):
+    # defenitie gekopieerd van
+    # headers_for_totaal_kolommen()
+    df_rol_kolommen_lijst = ["pdf"]
+    count = 1
+    kolomnaam_vervang_waarde = []
+    for _ in range(mes):
+        for kolomnaam in df_rol_kolommen_lijst:
+            # print(kolomnaam, count)
+            header = f'{kolomnaam}_{count}'
+            kolomnaam_vervang_waarde.append(header)
+        count += 1
+    return kolomnaam_vervang_waarde
+
+
+def inloop_uitloop_stans(df, wikkel, etiket_y, kolomnaam_vervang_waarde):
+    #todo transform with list comprehensions
+
+    loop = (etiket_y * 10) - wikkel
+    ic(wikkel)
+    ic(loop)
+    generator = df.itertuples(index=True)
+
+    einde_df = len(df)
+    ic(einde_df)
+    data_df = []
+    nieuwe_df = []
+    for seq in itertools.islice(generator, 2, 3):
+        data_df.append(seq)
+
+    data_df1 = pd.DataFrame(data_df)
+
+    data2 = pd.DataFrame([x for x in itertools.islice(generator, wikkel, wikkel + etiket_y)])
+    ic(data2.head())
+
+    generator = df.itertuples(index=True)
+    data3 = pd.DataFrame([x for x in itertools.islice(generator, (einde_df - etiket_y), einde_df)])
+    ic(data3.head())
+
+    generator = df.itertuples(index=True)
+
+    for seq in itertools.islice(generator,3,loop):
+        nieuwe_df.append(seq)
+    inloopDF = pd.DataFrame(nieuwe_df)
+    inloopDF[kolomnaam_vervang_waarde] ='stans.pdf'
+    # inloopDF.reset_index()
+
+    #in en uitloop kunnen hier gegenereerd worden als laatse stans eroverheen
+
+    indat = pd.concat([data_df1,
+                       data2,
+                       inloopDF,
+                       df,
+                       inloopDF,
+                       data3,
+                       data_df1
+                       ])
+    indat.reset_index()
+    return indat
+
+
+
+def csv_name_giver():
+
+    def naming_a_csv(name, count, exp=".csv"):
+        csv_name = f'{name}_{count}{exp}'
+        return csv_name
+
+    return naming_a_csv
+
+vdpnaam= csv_name_giver()
 
