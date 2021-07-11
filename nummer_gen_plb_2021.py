@@ -3,9 +3,11 @@
 import PySimpleGUI as sg
 import os
 import pandas as pd
-from pathlib import Path
 import sys
 from icecream import ic
+from openpyxl import load_workbook
+import xlrd
+import xlwt
 from data.data_definitions import *
 from calculations.calculations import dataframe_cutter, combinaties_over_totale_order, combinaties
 from calculations.character_template import *
@@ -30,6 +32,7 @@ def main():
         [sg.Text("VDP map voor csv's")],
         [sg.In(key="folder_voor_vdp_map", size=(60, 10))],
         [sg.FolderBrowse(target="folder_voor_vdp_map")],
+        # todo set default map
         # [sg.In(key="CSV file", size=(60, 10))],
         [sg.Text("CSV_file")],
         [
@@ -44,12 +47,6 @@ def main():
         [sg.Text()],
         [sg.CalendarButton("Datum", target=(1, 0), key='datum')],
 
-
-
-
-
-
-
         [sg.Frame(layout=[
             [sg.Checkbox("gebruik template", key="gebruik_template", default=False)],
             [sg.Text("template", size=(15, 1)), sg.Input("??????????????", key="template")],
@@ -59,12 +56,11 @@ def main():
             [sg.Text("slice links", size=(15, 1)), sg.Input(3, key="slice_links")],
             [sg.Text()],
             [sg.Checkbox("SSCC18", key="sscc18", default=False, size=(10, 1)),
-             sg.Checkbox("mod10 (ean13 - ean8)", key = "ean13", default=False)],
+             sg.Checkbox("mod10 (ean13 - ean8)", key="ean13", default=False)],
 
-            [sg.Radio('Nederlands', "RADIO1",key="radio", default=True, size=(10, 1)),
+            [sg.Radio('Nederlands', "RADIO1", key="radio", default=True, size=(10, 1)),
              sg.Radio('Duits', "RADIO1")]], title='Options', title_color='red', relief=sg.RELIEF_SUNKEN,
             tooltip='taal voor sluitetiket')],
-
 
         [sg.Text()],
         # [
@@ -81,8 +77,8 @@ def main():
         # [sg.Text()],
         # [
         [sg.Text("Totaal aantal", size=(15, 1)),
-            sg.Input(361_000, key="totaal_aantal"),
-        ],
+         sg.Input(361_000, key="totaal_aantal"),
+         ],
 
         [sg.Text("Beginnummer", size=(15, 1)), sg.InputText(1, key="begin_nummer")],
         [sg.Text("Veelvoud", size=(15, 1)), sg.InputText(1, key="veelvoud")],
@@ -166,7 +162,7 @@ def main():
             mes = int(values["mes"])
             opmerkingen = values["opmerkingen"]
 
-            wikkel = de_uitgerekenende_wikkel(aantal_per_rol,hoogte, kern)
+            wikkel = de_uitgerekenende_wikkel(aantal_per_rol, hoogte, kern)
 
             checkbox_slice_rechts = values["slice_rechts_check"]
             aantal_posities_uit_rechts = int(values["slice_rechts"])
@@ -179,6 +175,14 @@ def main():
             naar_folder_pad = Path(values["folder_voor_vdp_map"])
             ic(f"naar_folder_pad: {naar_folder_pad}")
             inloop = Y_waarde * 10 - Y_waarde
+
+            if values['radio'] == True:
+                values['radio'] = 'nl'
+            else:
+                values['radio'] = 'de'
+
+            print(f'{values["radio"]=}')
+            taal_var = values["radio"]
 
             ic(values)
 
@@ -240,17 +244,16 @@ def main():
 
             if check_template:
                 if not template_length_checker(begin_nummer_to_check, template_array_truths):
-                    print(f'nummer is {len(begin_nummer_to_check)} tekens lang, template is {template_array_truths} tekens lang en dus zijn niet gelijk.')
+                    print(
+                        f'nummer is {len(begin_nummer_to_check)} tekens lang, template is {template_array_truths} tekens lang en dus zijn niet gelijk.')
 
             if check_template and template_length_checker(begin_nummer_to_check, template_array_truths):
-                te_bewerken_dataframe_voor_plb_2020['hr_template']=\
+                te_bewerken_dataframe_voor_plb_2020['hr_template'] = \
                     te_bewerken_dataframe_voor_plb_2020["Kolom"].apply(lambda x: nieuw_nummer(x,
-                                                                                    template10,
-                                                                                    template_array,
-                                                                                    compare_template_with_number_list()))
+                                                                                              template10,
+                                                                                              template_array,
+                                                                                              compare_template_with_number_list()))
             ic(te_bewerken_dataframe_voor_plb_2020.head())
-
-            #todo columnnames for endresult
 
             #############################################
 
@@ -258,31 +261,34 @@ def main():
 
             #############################################
 
-
-            # todo make all dataframe rolls
-
             # main dataframe wordt hier verdeeld
             totaal_aantal_in_dataframe = len(te_bewerken_dataframe_voor_plb_2020)
             ic(totaal_aantal_in_dataframe)
 
             lijst_met_alle_dataframe_rollen = dataframe_cutter(te_bewerken_dataframe_voor_plb_2020, aantal_per_rol)
+            tot_rol = len(lijst_met_alle_dataframe_rollen)
+            tot_rol_pos = len(str(tot_rol))
+            ic(tot_rol_pos)
 
+            # eerste manier om rollen te maken door slice van dataframe
             rol = roll()
 
-            rollen = [rol(df, de_uitgerekenende_wikkel(aantal_per_rol, hoogte, kern), index)
-                      for index, df in enumerate(lijst_met_alle_dataframe_rollen)]
-            # list of tuples
+            #
+            # rollen = [rol(df, wikkel, index)
+            #           for index, df in enumerate(lijst_met_alle_dataframe_rollen)]
+            # # list of tuples
+            #
+            ### dataframe_rol, functiewikkel, rolnum, posities, taal
 
-            # ic(rollen)
+            rollen = [rol_van_generators(df, wikkel, index, tot_rol_pos, taal_var)
+                      for index, df in enumerate(lijst_met_alle_dataframe_rollen)]
+
+            summary_rollen = [sum_begin_eind(rol_df, rolnum)
+                              for rolnum, rol_df in enumerate(lijst_met_alle_dataframe_rollen)]
+
+            ic(summary_rollen)
             ic(rollen[0][:10])
             ic(rollen[1][:10])
-
-
-
-
-
-
-
 
             ###########################################
 
@@ -296,12 +302,15 @@ def main():
 
             # rollen maken
 
-            totaal_aan_rollen = dataframe_cutter(te_bewerken_dataframe_voor_plb_2020,aantal_per_rol)
+            totaal_aan_rollen = dataframe_cutter(te_bewerken_dataframe_voor_plb_2020, aantal_per_rol)
 
             ic(len(totaal_aan_rollen))
 
             kolom_namen = headers_for_totaal_kolommen(te_bewerken_dataframe_voor_plb_2020, mes)
             ic(kolom_namen)
+
+            sum_kol = filter_kolommen_pdf(mes, "baan")
+            kolom_vervang_waarde_pdf = filter_kolommen_pdf(mes, "pdf")
 
             ##########################################
 
@@ -309,18 +318,17 @@ def main():
                 print("verwerk de lijst zoals ie nu is")
                 # lijst in lijst maken
 
-                vdp_alle_combinaties = len(totaal_aan_rollen)//mes
+                vdp_alle_combinaties = len(totaal_aan_rollen) // mes
                 ic(vdp_alle_combinaties)
 
                 lijst_van_lijst_van_alle_rollen = lijst_opbreker(rollen, mes, vdp_alle_combinaties)
+
+
 
                 ic(len(lijst_van_lijst_van_alle_rollen))
 
                 # dit maakt een 'vdpblok' van de combinaties en rollen zonder in uitloop
                 VDP = stapel_df_baan(lijst_van_lijst_van_alle_rollen)
-
-                ###############################################
-                # checking vdp objects
 
                 VDP.columns = kolom_namen
                 ic(kolom_namen)
@@ -330,25 +338,63 @@ def main():
                 ################################################
                 # naamgeving vdp csv zonder index alles als string
 
-                vdp_maker(VDP, mes, Y_waarde, aantal_per_rol, wikkel).to_csv('vdp_def_test1.csv')
+                vdp_bestandsnaam = pad.joinpath(f'{ordernummer} VDP.csv')
+
+                # vdp_maker(VDP, mes, Y_waarde, aantal_per_rol, wikkel).to_csv(vdp_bestandsnaam, index=0)
+                inloop_uitloop_stans(VDP,
+                                     wikkel,
+                                     Y_waarde,
+                                     kolom_vervang_waarde_pdf,
+                                     aantal_per_rol).to_csv(vdp_bestandsnaam, index=0)
 
                 # VDP.to_csv("gteststr1.csv")
 
+                ### summary
+                lijst_alle_summary_rollen = lijst_opbreker(summary_rollen, mes, vdp_alle_combinaties)
+                summary_vdp_1 = stapel_df_baan(lijst_alle_summary_rollen)
+                summary_vdp_1.columns = sum_kol
+                summary_vdp_1_bestandsnaam = pad.joinpath(f'{ordernummer} summary.xlsx')
+                summary_vdp_1.to_excel(summary_vdp_1_bestandsnaam, index=0)
+
+
             else:
-                tot_comb_ = combinaties_over_totale_order(len(te_bewerken_dataframe_voor_plb_2020),
+                lengte_df = len(te_bewerken_dataframe_voor_plb_2020)
+
+                tot_comb_ = combinaties_over_totale_order(lengte_df,
                                                           aantal_per_rol,
                                                           mes)
                 ic(tot_comb_)
 
-                combinatie_verdeling = combinaties(tot_comb_,aantal_vdps, mes)
+                combinatie_verdeling = combinaties(tot_comb_, aantal_vdps, mes)
 
                 ic(combinatie_verdeling)
 
                 vdp_alle_combinaties = len(totaal_aan_rollen) // mes
                 ic(vdp_alle_combinaties)
+
                 lijst_van_lijst_van_alle_rollen = lijst_opbreker(rollen,
                                                                  mes,
                                                                  vdp_alle_combinaties)
+
+                ######################## summary #########################
+
+                summary_lijst_van_lijst = lijst_opbreker(summary_rollen,
+                                                         mes,
+                                                         vdp_alle_combinaties)
+
+                verdeelde_summary_lijst = verdeling_met_slice(summary_lijst_van_lijst,
+                                                              combinatie_verdeling)
+
+                for count, sum_roll in enumerate(verdeelde_summary_lijst):
+                    bestandsnaam = pad.joinpath(f'{ordernummer} Summary')
+                    naam = vdpnaam(bestandsnaam, count + 1)
+
+                    verwerkte_summary = stapel_df_baan(sum_roll)
+                    verwerkte_summary.columns = sum_kol
+
+                    verwerkte_summary.to_csv(naam, index=0)
+
+                ######################## summary #########################
 
                 ic(len(lijst_van_lijst_van_alle_rollen))
 
@@ -356,28 +402,24 @@ def main():
                                                                combinatie_verdeling)
                 ic(pad)
 
-                pdf_kol = filter_kolommen_pdf(mes)
-                # simpel begin toe te voegen is een pad
+                pdf_kol = filter_kolommen_pdf(mes, "pdf")
+
                 for count, vdp in enumerate(verdeelde_lijst_van_vdps):
-                    naam = vdpnaam("test3", count+1)
+                    bestandsnaam = pad.joinpath(f'{ordernummer} VDP')
+                    naam = vdpnaam(bestandsnaam, count + 1)
+
                     verwerkte_vdp = stapel_df_baan(vdp)
                     verwerkte_vdp.columns = kolom_namen
 
                     # WERKT
-                    # vdp_maker(verwerkte_vdp, mes, Y_waarde, aantal_per_rol, wikkel).to_csv(naam)
+                    # vdp_maker(verwerkte_vdp, mes, Y_waarde, aantal_per_rol, wikkel).to_csv(naam, index=0)
                     # verwerk_vdp.to_csv(naam)
 
-                    inloop_uitloop_stans(verwerkte_vdp,wikkel,Y_waarde, pdf_kol).to_csv(naam, index=False)
-
-
-
-
-
-
-
-
-                #todo pad module
-                #todo naamgever csv files
+                    inloop_uitloop_stans(verwerkte_vdp,
+                                         wikkel,
+                                         Y_waarde,
+                                         pdf_kol,
+                                         aantal_per_rol).to_csv(naam, index=0)
 
 
 

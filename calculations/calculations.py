@@ -201,7 +201,7 @@ def stapel_df_baan(lijst_in):
 
     return vdp.reset_index(drop=True)
 
-
+#deprecated
 def VDP_inloop_uitloop():
 
     def filter_kolommen_pdf(mes):
@@ -289,10 +289,10 @@ def VDP_inloop_uitloop():
 vdp_maker = VDP_inloop_uitloop()
 
 
-def filter_kolommen_pdf(mes):
+def filter_kolommen_pdf(mes, de_kolomnaam):
     # defenitie gekopieerd van
     # headers_for_totaal_kolommen()
-    df_rol_kolommen_lijst = ["pdf"]
+    df_rol_kolommen_lijst = [de_kolomnaam]
     count = 1
     kolomnaam_vervang_waarde = []
     for _ in range(mes):
@@ -304,18 +304,19 @@ def filter_kolommen_pdf(mes):
     return kolomnaam_vervang_waarde
 
 
-def inloop_uitloop_stans(df, wikkel, etiket_y, kolomnaam_vervang_waarde):
+def inloop_uitloop_stans(df, wikkel, etiket_y, kolomnaam_vervang_waarde, apr):
     #todo transform with list comprehensions
 
     loop = (etiket_y * 10) - wikkel
     ic(wikkel)
     ic(loop)
-    generator = df.itertuples(index=True)
+    generator = df.itertuples(index=0)
 
     einde_df = len(df)
     ic(einde_df)
     data_df = []
     nieuwe_df = []
+    
     for seq in itertools.islice(generator, 2, 3):
         data_df.append(seq)
 
@@ -324,27 +325,45 @@ def inloop_uitloop_stans(df, wikkel, etiket_y, kolomnaam_vervang_waarde):
     data2 = pd.DataFrame([x for x in itertools.islice(generator, wikkel, wikkel + etiket_y)])
     ic(data2.head())
 
-    generator = df.itertuples(index=True)
+    generator = df.itertuples(index=0)
     data3 = pd.DataFrame([x for x in itertools.islice(generator, (einde_df - etiket_y), einde_df)])
     ic(data3.head())
 
-    generator = df.itertuples(index=True)
+    generator = df.itertuples(index=0)
 
     for seq in itertools.islice(generator,3,loop):
         nieuwe_df.append(seq)
     inloopDF = pd.DataFrame(nieuwe_df)
     inloopDF[kolomnaam_vervang_waarde] ='stans.pdf'
+
+    generator = df.itertuples(index=0)
+
+    begin_laatste_sluit = einde_df - (apr + (wikkel+1))
+    ic(begin_laatste_sluit)
+    laatste_sluit = pd.DataFrame([x for x in itertools.islice(generator,begin_laatste_sluit,begin_laatste_sluit+1)])
+    
+    
+    
     # inloopDF.reset_index()
 
     #in en uitloop kunnen hier gegenereerd worden als laatse stans eroverheen
 
-    indat = pd.concat([data_df1,
-                       data2,
+    indat = pd.concat([data2,
+
+                       data_df1,
+                       laatste_sluit,
+
                        inloopDF,
+                       
                        df,
+                       
                        inloopDF,
-                       data3,
-                       data_df1
+
+                       data_df1,
+                       laatste_sluit,
+
+                       data3
+
                        ])
     indat.reset_index()
     return indat
