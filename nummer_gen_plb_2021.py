@@ -176,6 +176,9 @@ def main():
             ic(f"naar_folder_pad: {naar_folder_pad}")
             inloop = Y_waarde * 10 - Y_waarde
 
+            sscc = values["sscc18"]
+            ic(sscc)
+
             if values['radio'] == True:
                 values['radio'] = 'nl'
             else:
@@ -197,7 +200,8 @@ def main():
                 aantal_per_rol,
                 0,
                 prefix,
-                postfix
+                postfix,
+                sscc
             )
             # eerst bekijken of checkboxes aan staan dan aantal vpds
 
@@ -387,12 +391,12 @@ def main():
 
                 for count, sum_roll in enumerate(verdeelde_summary_lijst):
                     bestandsnaam = pad.joinpath(f'{ordernummer} Summary')
-                    naam = vdpnaam(bestandsnaam, count + 1)
+                    naam = vdpnaam(bestandsnaam, count + 1, ".xlsx")
 
                     verwerkte_summary = stapel_df_baan(sum_roll)
                     verwerkte_summary.columns = sum_kol
 
-                    verwerkte_summary.to_csv(naam, index=0)
+                    verwerkte_summary.to_excel(naam, index=0)
 
                 ######################## summary #########################
 
@@ -426,7 +430,12 @@ def main():
                 ##################################
 
                 # values from gUI
+
+
                 ic(values)
+
+                bestandsnaam = pad.joinpath(f'{ordernummer}', "html")
+                # html_sum_form_writer(pad, ordernummer, values)
                 ###################################
 
 

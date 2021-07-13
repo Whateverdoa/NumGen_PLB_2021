@@ -1,13 +1,52 @@
 from typing import Union
 import itertools
-
 import pandas as pd
 from pandas import DataFrame, Series
+from checkdigit._data import cleanse, convert
+from checkdigit import gs1
 
 from calculations.calculations import *
 
+
+def calculate(data: str) -> str:
+    """Calculates the luhn check digit.
+
+    Args:
+        data: A block of data without the check digit
+
+    Returns:
+        str: A string representing the missing check digit
+
+    """
+    data = cleanse(data)
+    position_counter = 1  # 1-based indexing
+    total_sum = 0
+    for item in data[::-1]:  # Reverses String
+        digit = int(item)
+        if position_counter % 2:  # If position number is odd with reversed string
+            add_value = digit * 3
+            total_sum += add_value
+        else:
+
+            total_sum += digit
+
+        # ic(total_sum)
+        position_counter += 1
+    return convert(10 - (total_sum % 10), "luhn")
+
+
+
 # todo toevoegen ean13  etc en sscc18
-def nummer_lijst_bouwer(begin_nummer, totaal, pdf, posities, mes, aantal_per_rol, vlg=0, prefix="", postfix=""):
+def nummer_lijst_bouwer(begin_nummer,
+                        totaal,
+                        pdf,
+                        posities,
+                        mes,
+                        aantal_per_rol,
+                        vlg=0,
+                        prefix="",
+                        postfix="",
+                        sscc=False):
     """met de lijst output word een dataframe gemaakt
     #todo plaats andere zoals sscc en ean 13 ook in deze def?"""
 
@@ -20,6 +59,14 @@ def nummer_lijst_bouwer(begin_nummer, totaal, pdf, posities, mes, aantal_per_rol
         eind = begin_nummer + totaal
         nummers = [(f'{prefix}{x:>{vlg}{posities}}{postfix}', f'{pdf}', '') for x in range(begin_nummer, eind)]
         nummers_df = pd.DataFrame(nummers, columns=["kolom1", "pdf", "omschrijving"], dtype="str")
+        return nummers
+
+    def maak_sscc_lijst(begin_nummer, totaal, pdf='leeg.pdf'):
+        '''list comp voor maken nummer lijst, 3 kolommen
+        kijk voor benamingen in project lijst bewerken'''
+        eind = begin_nummer + totaal
+        nummers = [[f'{x:>{0}{posities}}{gs1.calculate(str(x))}', f'{pdf}', " "] for x in range(begin_nummer, eind)]
+
         return nummers
 
 
@@ -42,18 +89,34 @@ def nummer_lijst_bouwer(begin_nummer, totaal, pdf, posities, mes, aantal_per_rol
             print(f'aantal rest rollen = {rest_rollen} uit else')
             return rest_rollen
 
-    num_lijst = maak_simpele_lijst(begin_nummer, totaal, pdf)
-    rest = rest_rollen_uitrekenen(mes, totaal, aantal_per_rol)
-    rest_lijst = maak_simpele_lijst(1, (rest * aantal_per_rol), "stans.pdf")
+    if sscc:
 
-    if rest != 0:
+        num_lijst = maak_sscc_lijst(begin_nummer, totaal, pdf)
+        rest = rest_rollen_uitrekenen(mes, totaal, aantal_per_rol)
+        rest_lijst = maak_sscc_lijst(1, (rest * aantal_per_rol), "stans.pdf")
+
+        if rest != 0:
+            rest_lijst = maak_sscc_lijst(1, (rest * aantal_per_rol), "stans.pdf")
+
+            totlijst = num_lijst + rest_lijst
+            return totlijst
+
+        else:
+            return num_lijst
+
+    elif sscc == False:
+        num_lijst = maak_simpele_lijst(begin_nummer, totaal, pdf)
+        rest = rest_rollen_uitrekenen(mes, totaal, aantal_per_rol)
         rest_lijst = maak_simpele_lijst(1, (rest * aantal_per_rol), "stans.pdf")
 
-        totlijst = num_lijst + rest_lijst
-        return totlijst
+        if rest != 0:
+            rest_lijst = maak_simpele_lijst(1, (rest * aantal_per_rol), "stans.pdf")
 
-    else:
-        return num_lijst
+            totlijst = num_lijst + rest_lijst
+            return totlijst
+
+        else:
+            return num_lijst
 
 # dit is een functie die in lijstmaker zit
 def rest_rollen_uitrekenen(mes, totaal, aantal_per_rol):
@@ -180,3 +243,33 @@ def roll_summary():
 
 
 sum_begin_eind = roll_summary()
+
+
+def html_sum_form_writer(user_designated_file_path, titel="summary", **kwargs):
+    """"build a html file for summary purposes with  *kwargv
+    search jinja and flask
+    css link toevoegen
+    """
+    for key, value in kwargs.items():
+        print(key, value)
+
+    naam_html_file = f'{user_designated_file_path}/{titel}_.html'
+    with open(naam_html_file, "w") as f_html:
+
+        #         for key, value in kwargs.items():
+        #             print(key, value)
+
+        print("<!DOCTYPE html>\n", file=f_html)
+        print('<html lang = "en">\n', file=f_html)
+        print("     <head>\n", file=f_html)
+        print("<meta charset='UTF-8>'\n", file=f_html)
+        print(f"<title>{titel.capitalize()}</title>\n", file=f_html)
+        print("     </head>", file=f_html)
+        print("         <body>", file=f_html)
+        for key, value in kwargs.items():
+            print(f' <p><b>{key}</b> : {value}<p/>', file=f_html)
+
+        print("         </body>", file=f_html)
+        print(" </html>", file=f_html)
+
+
