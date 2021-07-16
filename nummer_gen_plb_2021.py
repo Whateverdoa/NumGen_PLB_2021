@@ -54,9 +54,13 @@ def main():
             [sg.Text("slice rechts", size=(15, 1)), sg.Input(3, key="slice_rechts")],
             [sg.Checkbox("gebruik slice links", key="slice_links_check", default=False)],
             [sg.Text("slice links", size=(15, 1)), sg.Input(3, key="slice_links")],
+            [sg.Checkbox("Wikkel handmatig", key="wikkel_handmatig", default=False)],
+            [sg.Text("Wikkel", size=(15, 1)), sg.Input(3, key="wikkel_handmatige_invoer")],
+
+
             [sg.Text()],
             [sg.Checkbox("SSCC18", key="sscc18", default=False, size=(10, 1)),
-             sg.Checkbox("mod10 (ean13 - ean8)", key="ean13", default=False)],
+             sg.Checkbox("null", key="null", default=False)],
 
             [sg.Radio('Nederlands', "RADIO1", key="radio", default=True, size=(10, 1)),
              sg.Radio('Duits', "RADIO1")]], title='Options', title_color='red', relief=sg.RELIEF_SUNKEN,
@@ -90,7 +94,9 @@ def main():
         ],
         [sg.Text("Mes", size=(15, 1)), sg.InputText(6, key="mes")],
         [sg.Text("Y_waarde", size=(15, 1)), sg.InputText(11, key="Y_waarde")],
-        # [sg.Text("Wikkel", size=(15, 1)), sg.InputText(8, key="wikkel")],
+
+        # [sg.Text("Wikkel", size=(15, 1)), sg.InputText(8, key="wikkelhandmatig")],
+
         [sg.Text("prefix", size=(15, 1)), sg.InputText("", key="prefix")],
         [sg.Text("postfix", size=(15, 1)), sg.InputText("", key="postfix")],
         [sg.Text("hoogte etiket", size=(15, 1)), sg.InputText(80, key="hoogte")],
@@ -162,7 +168,15 @@ def main():
             mes = int(values["mes"])
             opmerkingen = values["opmerkingen"]
 
-            wikkel = de_uitgerekenende_wikkel(aantal_per_rol, hoogte, kern)
+            ##### Wikkel #####
+
+            wikkel_handmatig = values["wikkel_handmatig"]
+            if wikkel_handmatig:
+                wikkel = int(values["wikkel_handmatige_invoer"])  #handmatige wikkel
+            else:
+                wikkel = de_uitgerekenende_wikkel(aantal_per_rol, hoogte, kern)
+
+            ###############
 
             checkbox_slice_rechts = values["slice_rechts_check"]
             aantal_posities_uit_rechts = int(values["slice_rechts"])
@@ -287,7 +301,7 @@ def main():
             rollen = [rol_van_generators(df, wikkel, index, tot_rol_pos, taal_var)
                       for index, df in enumerate(lijst_met_alle_dataframe_rollen)]
 
-            summary_rollen = [sum_begin_eind(rol_df, rolnum)
+            summary_rollen = [sum_begin_eind(rol_df, rolnum, wikkel)
                               for rolnum, rol_df in enumerate(lijst_met_alle_dataframe_rollen)]
 
             ic(summary_rollen)
@@ -431,11 +445,16 @@ def main():
 
                 # values from gUI
 
+                keywordargs={   'Y_waarde': '9',
+                                'aantal_per_rol': '4450',
+                                'aantal_vdps': '6',
+                                'begin_nummer': '4902001',}
+
 
                 ic(values)
 
-                bestandsnaam = pad.joinpath(f'{ordernummer}', "html")
-                # html_sum_form_writer(pad, ordernummer, values)
+
+                html_sum_form_writer(pad, ordernummer, **keywordargs)
                 ###################################
 
 

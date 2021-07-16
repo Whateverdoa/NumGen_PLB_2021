@@ -81,7 +81,7 @@ def check_length_string_and_template_truths():
     if length is equal or != to length
     I dont want program to run  and will use try etc... to break program    and let user fix the error'''
     def check_lengtes_bool(number_string, counted_truths):
-        if not len(number_string) == counted_truths:
+        if not len(number_string)+1 == counted_truths:
             print(counted_truths)
             return False
         else:

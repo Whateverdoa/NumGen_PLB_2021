@@ -75,8 +75,8 @@ def nummer_lijst_bouwer(begin_nummer,
         """het totaal delen door de aantal per rol:
 
         de restwaarde hier van geeft het aantal rollen dat te kort is"""
-        if totaal % mes * aantal_per_rol == 0:
-            return 0
+        # if totaal % mes * aantal_per_rol == 0:
+        #     return 0
 
         if totaal <= mes * aantal_per_rol:
 
@@ -228,21 +228,24 @@ rol_van_generators = rol_uit_generator()
 def roll_summary():
     # maak een dataframe als in num gen 2.0
     # haal de data uit de VDP dataframe met begin en eind slice wikkel combi
-    def summary_rol_van_dataframe(dataframe_rol, rolnum):
+    def summary_rol_van_dataframe(dataframe_rol, rolnum, wikkel):
         begin, eind, aantal = begin_eind_dataframe(dataframe_rol)
 
-        sluitetiket = f"Rol {rolnum + 1} | {begin} - {eind} | {aantal} etiketten"
+        sluitetiket = pd.DataFrame([f"Rol {rolnum + 1} | {begin} - {eind} | {aantal} etiketten"])
 
         begin = pd.DataFrame([begin])
         eind = pd.DataFrame([eind])
 
-        rol_sum=pd.concat([begin,eind])
+        rol_sum=pd.concat([sluitetiket,begin,eind])
 
         return rol_sum
     return summary_rol_van_dataframe
 
 
 sum_begin_eind = roll_summary()
+
+
+
 
 
 def html_sum_form_writer(user_designated_file_path, titel="summary", **kwargs):
