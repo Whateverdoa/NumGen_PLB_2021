@@ -332,6 +332,28 @@ def main():
 
             ##########################################
 
+            keywordargs = {
+                "Ordernummer: ": ordernummer,
+                "Aantal VDP's": aantal_vdps,
+                "Totaal aantal ": str(f'{totaal_aantal:,} etiketten').replace(",", "."),
+                "begin_nummer": f'{prefix}{begin_nummer:>{0}{posities}}{postfix}',
+                "eind_nummer": f'{prefix}{begin_nummer + totaal_aantal - 1:>{0}{posities}}{postfix}',
+                'Aantal Rollen': f'{totaal_aantal // aantal_per_rol} rol(len) van {aantal_per_rol}',
+                # "Rol_nummers": f'Rol_{begin_rolnummer + 1} t/m Rol_{begin_rolnummer + aantal_rollen}',
+                "Mes ": mes,
+                # 'Mes x combinaties ': f'{mes} van {combinaties} banen',
+                "Wikkel": f'{wikkel + 3} etiketten inclusief sluitetiket',
+
+                'Inloop en uitloop': f'{Y_waarde} x 10 sheets.',
+                # 'De files staan hier': naar_folder_pad,
+                "Opmerkingen": opmerkingen,
+                "vdp meters: ": 0,
+                " datafr": 0}
+
+            html_sum_form_writer(pad, ordernummer, **keywordargs)
+
+            ######################################
+
             if aantal_vdps == 1:
                 print("verwerk de lijst zoals ie nu is")
                 # lijst in lijst maken
@@ -358,6 +380,7 @@ def main():
 
                 vdp_bestandsnaam = pad.joinpath(f'{ordernummer} VDP.csv')
 
+
                 # vdp_maker(VDP, mes, Y_waarde, aantal_per_rol, wikkel).to_csv(vdp_bestandsnaam, index=0)
                 inloop_uitloop_stans(VDP,
                                      wikkel,
@@ -372,7 +395,9 @@ def main():
                 summary_vdp_1 = stapel_df_baan(lijst_alle_summary_rollen)
                 summary_vdp_1.columns = sum_kol
                 summary_vdp_1_bestandsnaam = pad.joinpath(f'{ordernummer} summary.xlsx')
+                summary_vdp_1_html_bestandsnaam = pad.joinpath(f'{ordernummer} summary.html')
                 summary_vdp_1.to_excel(summary_vdp_1_bestandsnaam, index=0)
+                summary_vdp_1.to_html(summary_vdp_1_html_bestandsnaam, index=0)
 
 
             else:
@@ -396,46 +421,38 @@ def main():
 
                 ######################## summary #########################
 
-                keywordargs = {
-                    "Ordernummer: ": ordernummer,
-                    "Aantal VDP's": aantal_vdps,
-                    "Totaal aantal ": str(f'{totaal_aantal:,} etiketten').replace(",", "."),
-                    "begin_nummer": f'{prefix}{begin_nummer:>{0}{posities}}{postfix}',
-                    "eind_nummer": f'{prefix}{begin_nummer + totaal_aantal - 1:>{0}{posities}}{postfix}',
-                    'Aantal Rollen': f'{totaal_aantal // aantal_per_rol} rol(len) van {aantal_per_rol}',
-                    # "Rol_nummers": f'Rol_{begin_rolnummer + 1} t/m Rol_{begin_rolnummer + aantal_rollen}',
-                    "Mes ": mes,
-                    # 'Mes x combinaties ': f'{mes} van {combinaties} banen',
-                    "Wikkel": f'{wikkel + 3} etiketten inclusief sluitetiket',
-
-                    'Inloop en uitloop': f'{Y_waarde} x 10 sheets.',
-                    # 'De files staan hier': naar_folder_pad,
-                    "Opmerkingen": opmerkingen,
-                    "vdp meters: ": 0,
-                    " datafr": 0}
-
-
                 summary_lijst_van_lijst = lijst_opbreker(summary_rollen,
                                                          mes,
                                                          vdp_alle_combinaties)
 
                 verdeelde_summary_lijst = verdeling_met_slice(summary_lijst_van_lijst,
                                                               combinatie_verdeling)
-
+                sum_df_lijst = []
                 for count, sum_roll in enumerate(verdeelde_summary_lijst):
+
                     bestandsnaam = pad.joinpath(f'{ordernummer} Summary')
+
                     naam = vdpnaam(bestandsnaam, count + 1, ".xlsx")
                     htmlnaam = vdpnaam(bestandsnaam, count + 1, ".html")
 
                     verwerkte_summary = stapel_df_baan(sum_roll)
                     verwerkte_summary.columns = sum_kol
+                    scheiding = pd.DataFrame([f'vdp {count+1}'])
+                    sum_vdp = pd.concat([scheiding,verwerkte_summary,scheiding], axis=0)
 
-                    verwerkte_summary.to_excel(naam, index=0)
-                    verwerkte_summary.to_html(htmlnaam, index=0)
+                    sum_df_lijst.append(sum_vdp)
+                    # todo index uit html en excl halen
 
 
 
-                ######################## summary #########################
+                    # verwerkte_summary.to_excel(naam, index=0)
+                    # verwerkte_summary.to_html(htmlnaam, index=0)
+
+
+                pd.concat(sum_df_lijst).to_html(pad.joinpath(f'{ordernummer} Summary.html'))
+                pd.concat(sum_df_lijst).to_excel(pad.joinpath(f'{ordernummer} Summary.xlsx'),index=False)
+
+                ######################## einde summary #########################
 
                 ic(len(lijst_van_lijst_van_alle_rollen))
 
@@ -444,6 +461,7 @@ def main():
                 ic(pad)
 
                 pdf_kol = filter_kolommen_pdf(mes, "pdf")
+
 
                 for count, vdp in enumerate(verdeelde_lijst_van_vdps):
                     bestandsnaam = pad.joinpath(f'{ordernummer} VDP')
@@ -479,7 +497,7 @@ def main():
                 ic(values)
 
 
-                html_sum_form_writer(pad, ordernummer, **keywordargs)
+
                 ###################################
 
 
