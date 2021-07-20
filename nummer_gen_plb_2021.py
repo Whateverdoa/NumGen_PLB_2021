@@ -437,7 +437,7 @@ def main():
 
                     verwerkte_summary = stapel_df_baan(sum_roll)
                     verwerkte_summary.columns = sum_kol
-                    scheiding = pd.DataFrame([f'vdp {count+1}'])
+                    scheiding = pd.DataFrame([f'vdp {count+1}'],columns=["VDP"]) # todo zet hier wikkel en andere informatie in svp
                     sum_vdp = pd.concat([scheiding,verwerkte_summary,scheiding], axis=0)
 
                     sum_df_lijst.append(sum_vdp)
@@ -449,7 +449,8 @@ def main():
                     # verwerkte_summary.to_html(htmlnaam, index=0)
 
 
-                pd.concat(sum_df_lijst).to_html(pad.joinpath(f'{ordernummer} Summary.html'))
+
+                pd.concat(sum_df_lijst).fillna(" ").to_html(pad.joinpath(f'{ordernummer} Summary.html'),index=False)
                 pd.concat(sum_df_lijst).to_excel(pad.joinpath(f'{ordernummer} Summary.xlsx'),index=False)
 
                 ######################## einde summary #########################

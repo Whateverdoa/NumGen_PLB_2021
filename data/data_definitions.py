@@ -247,10 +247,10 @@ rol_van_generators = rol_uit_generator()
 def roll_summary():
     # maak een dataframe als in num gen 2.0
     # haal de data uit de VDP dataframe met begin en eind slice wikkel combi
-    def summary_rol_van_dataframe(dataframe_rol, rolnum,wikkel):
+    def summary_rol_van_dataframe(dataframe_rol, rolnum, wikkel):
         begin, eind, aantal = begin_eind_dataframe(dataframe_rol)
         #f"Rol {rolnum + 1} | {begin} - {eind} | {aantal} etiketten"
-        sluitetiket = pd.DataFrame([f"Rol {rolnum + 1} | {aantal} etiketten"])
+        sluitetiket = pd.DataFrame([f"Rol {rolnum + 1} | wikkel = {wikkel} | {aantal} etiketten"])
 
         begin = pd.DataFrame([begin])
         eind = pd.DataFrame([eind])
