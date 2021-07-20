@@ -71,23 +71,42 @@ def nummer_lijst_bouwer(begin_nummer,
 
 
 
+    # def rest_rollen_uitrekenen(mes, totaal, aantal_per_rol):
+    #     """het totaal delen door de aantal per rol:
+    #
+    #     de restwaarde hier van geeft het aantal rollen dat te kort is"""
+    #     # todo check of dit nodig is in restwaarde
+    #     # if totaal % mes * aantal_per_rol == 0:
+    #     #     return 0
+    #
+    #     if totaal <= mes * aantal_per_rol:
+    #
+    #         print(f'aantal rest rollen = {abs((mes * aantal_per_rol - totaal) // aantal_per_rol)} uit if')
+    #         return abs((mes * aantal_per_rol - totaal) // aantal_per_rol)
+    #
+    #     else:
+    #
+    #         rest_rollen = mes - totaal // aantal_per_rol % mes
+    #         print(f'aantal rest rollen = {rest_rollen} uit else')
+    #         return rest_rollen
+
+
     def rest_rollen_uitrekenen(mes, totaal, aantal_per_rol):
-        """het totaal delen door de aantal per rol:
-
-        de restwaarde hier van geeft het aantal rollen dat te kort is"""
-        # if totaal % mes * aantal_per_rol == 0:
-        #     return 0
-
+        """het totaal delen door de aantal per rol  de restwaarde hievan geeft het aantal rollen dat te kort is"""
         if totaal <= mes * aantal_per_rol:
 
-            print(f'aantal rest rollen = {abs((mes * aantal_per_rol - totaal) // aantal_per_rol)} uit if')
-            return abs((mes * aantal_per_rol - totaal) // aantal_per_rol)
+            # print(f'aantal rest rollen = {abs((mes * aantal_per_rol - totaal) // aantal_per_rol)} uit if')
+            return abs((mes * aantal_per_rol - totaal) // aantal_per_rol) * aantal_per_rol
 
+
+        elif (totaal // aantal_per_rol) % mes == 0:
+            return 0
+            # print(f'aantal rest rollen = {rest_rollen} uit else')
         else:
 
-            rest_rollen = mes - totaal // aantal_per_rol % mes
-            print(f'aantal rest rollen = {rest_rollen} uit else')
-            return rest_rollen
+            return ((mes - (totaal // aantal_per_rol) % mes) * aantal_per_rol) // aantal_per_rol
+
+
 
     if sscc:
 
@@ -228,24 +247,21 @@ rol_van_generators = rol_uit_generator()
 def roll_summary():
     # maak een dataframe als in num gen 2.0
     # haal de data uit de VDP dataframe met begin en eind slice wikkel combi
-    def summary_rol_van_dataframe(dataframe_rol, rolnum, wikkel):
+    def summary_rol_van_dataframe(dataframe_rol, rolnum,wikkel):
         begin, eind, aantal = begin_eind_dataframe(dataframe_rol)
-
-        sluitetiket = pd.DataFrame([f"Rol {rolnum + 1} | {begin} - {eind} | {aantal} etiketten"])
+        #f"Rol {rolnum + 1} | {begin} - {eind} | {aantal} etiketten"
+        sluitetiket = pd.DataFrame([f"Rol {rolnum + 1} | {aantal} etiketten"])
 
         begin = pd.DataFrame([begin])
         eind = pd.DataFrame([eind])
 
-        rol_sum=pd.concat([sluitetiket,begin,eind])
+        rol_sum=pd.concat([sluitetiket, begin, eind])
 
         return rol_sum
     return summary_rol_van_dataframe
 
 
 sum_begin_eind = roll_summary()
-
-
-
 
 
 def html_sum_form_writer(user_designated_file_path, titel="summary", **kwargs):
@@ -256,7 +272,7 @@ def html_sum_form_writer(user_designated_file_path, titel="summary", **kwargs):
     for key, value in kwargs.items():
         print(key, value)
 
-    naam_html_file = f'{user_designated_file_path}/{titel}_.html'
+    naam_html_file = f'{user_designated_file_path}/_{titel}.html'
     with open(naam_html_file, "w") as f_html:
 
         #         for key, value in kwargs.items():

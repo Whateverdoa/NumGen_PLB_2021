@@ -396,6 +396,25 @@ def main():
 
                 ######################## summary #########################
 
+                keywordargs = {
+                    "Ordernummer: ": ordernummer,
+                    "Aantal VDP's": aantal_vdps,
+                    "Totaal aantal ": str(f'{totaal_aantal:,} etiketten').replace(",", "."),
+                    "begin_nummer": f'{prefix}{begin_nummer:>{0}{posities}}{postfix}',
+                    "eind_nummer": f'{prefix}{begin_nummer + totaal_aantal - 1:>{0}{posities}}{postfix}',
+                    'Aantal Rollen': f'{totaal_aantal // aantal_per_rol} rol(len) van {aantal_per_rol}',
+                    # "Rol_nummers": f'Rol_{begin_rolnummer + 1} t/m Rol_{begin_rolnummer + aantal_rollen}',
+                    "Mes ": mes,
+                    # 'Mes x combinaties ': f'{mes} van {combinaties} banen',
+                    "Wikkel": f'{wikkel + 3} etiketten inclusief sluitetiket',
+
+                    'Inloop en uitloop': f'{Y_waarde} x 10 sheets.',
+                    # 'De files staan hier': naar_folder_pad,
+                    "Opmerkingen": opmerkingen,
+                    "vdp meters: ": 0,
+                    " datafr": 0}
+
+
                 summary_lijst_van_lijst = lijst_opbreker(summary_rollen,
                                                          mes,
                                                          vdp_alle_combinaties)
@@ -406,11 +425,15 @@ def main():
                 for count, sum_roll in enumerate(verdeelde_summary_lijst):
                     bestandsnaam = pad.joinpath(f'{ordernummer} Summary')
                     naam = vdpnaam(bestandsnaam, count + 1, ".xlsx")
+                    htmlnaam = vdpnaam(bestandsnaam, count + 1, ".html")
 
                     verwerkte_summary = stapel_df_baan(sum_roll)
                     verwerkte_summary.columns = sum_kol
 
                     verwerkte_summary.to_excel(naam, index=0)
+                    verwerkte_summary.to_html(htmlnaam, index=0)
+
+
 
                 ######################## summary #########################
 
@@ -425,6 +448,9 @@ def main():
                 for count, vdp in enumerate(verdeelde_lijst_van_vdps):
                     bestandsnaam = pad.joinpath(f'{ordernummer} VDP')
                     naam = vdpnaam(bestandsnaam, count + 1)
+
+                    htmlnaam= pad.joinpath(f'{ordernummer} VDP',".html")
+                    ic(htmlnaam)
 
                     verwerkte_vdp = stapel_df_baan(vdp)
                     verwerkte_vdp.columns = kolom_namen
@@ -441,14 +467,13 @@ def main():
 
 
 
-                ##################################
+
+
+                    ##################################
 
                 # values from gUI
 
-                keywordargs={   'Y_waarde': '9',
-                                'aantal_per_rol': '4450',
-                                'aantal_vdps': '6',
-                                'begin_nummer': '4902001',}
+
 
 
                 ic(values)

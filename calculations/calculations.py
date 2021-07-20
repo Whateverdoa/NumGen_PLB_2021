@@ -199,6 +199,7 @@ def stapel_df_baan(lijst_in):
 
     vdp = pd.concat(vdp_stapel, axis=0)
 
+
     return vdp.reset_index(drop=True)
 
 #deprecated
@@ -276,9 +277,10 @@ def VDP_inloop_uitloop():
             vdp_dataframe,
 
             uitloop_df,
-            data_uitloop,
+
             begin_inloop_sluit,
-            uitloopsluit
+            uitloopsluit,
+            data_uitloop
         ])
 
         return vdp_met_in_en_uitloop
