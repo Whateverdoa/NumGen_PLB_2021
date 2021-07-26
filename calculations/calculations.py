@@ -1,8 +1,12 @@
 """ the calculations represent decisions or planning.
 They don't affect the world when they run"""
 import math
+from openpyxl import load_workbook
+import xlrd
+import xlwt
 import itertools
 import pandas as pd
+from pathlib import Path
 from icecream import ic
 
 
@@ -381,4 +385,31 @@ def csv_name_giver():
     return naming_a_csv
 
 vdpnaam= csv_name_giver()
+
+def dataframe_from_csv():
+
+    def file_to_dataframe(file_in):
+        """Builds a Dataframe from a workable csv or excel file
+         on which we can Generate with itertuples"""
+
+        if Path(file_in).suffix == ".csv":
+            # extra arg = ";"or ","
+            ic(Path(file_in).suffix)
+            file_to_generate_on = pd.read_csv(file_in, ";", encoding='utf-8', dtype="str")
+
+        elif Path(file_in).suffix == ".xlsx":
+            ic(Path(file_in).suffix)
+            file_to_generate_on = pd.read_excel(file_in, engine='openpyxl')
+
+        elif Path(file_in).suffix == ".xls":
+            ic(Path(file_in).suffix)
+            file_to_generate_on = pd.read_excel(file_in)
+
+        return file_to_generate_on
+
+    return file_to_dataframe
+
+maak_csv_naar_dataframe = dataframe_from_csv()
+
+
 

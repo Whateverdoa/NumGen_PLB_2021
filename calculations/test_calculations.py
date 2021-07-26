@@ -2,6 +2,8 @@ from .calculations import *
 from data.data_definitions import *
 import pandas as pd
 
+
+
 test_df = pd.DataFrame(nummer_lijst_bouwer(1, 1000, "leeg.pdf", 6, 3, 100),
                        columns=["kolom1", "pdf", "omschrijving"], dtype="str")
 
@@ -46,3 +48,12 @@ def test_csv_name_giver():
     test1 = naming("mike", 1, ".mike")
     expected = "mike_1.mike"
     assert test1 == expected
+
+
+def test_dataframe_from_csv():
+    # ic(csvfile)
+
+    testcsv = maak_csv_naar_dataframe(csvfile)
+    assert type(testcsv) == []
+
+

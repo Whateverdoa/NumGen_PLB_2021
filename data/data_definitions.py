@@ -2,10 +2,21 @@ from typing import Union
 import itertools
 import pandas as pd
 from pandas import DataFrame, Series
+
 from checkdigit._data import cleanse, convert
 from checkdigit import gs1
-
 from calculations.calculations import *
+
+from pathlib import Path
+
+wdirpad = Path.cwd().joinpath("pytest_csv_excel_testfiles")
+ic(wdirpad)
+csvfile = wdirpad.joinpath("csv_utf_8_test_file.csv")
+ic(csvfile)
+excelfile =wdirpad.joinpath("excel_test_file.xlsx")
+
+# testcsv = maak_csv_naar_dataframe(excelfile)
+# ic(testcsv.head())
 
 
 def calculate(data: str) -> str:
@@ -68,27 +79,6 @@ def nummer_lijst_bouwer(begin_nummer,
         nummers = [[f'{x:>{0}{posities}}{gs1.calculate(str(x))}', f'{pdf}', " "] for x in range(begin_nummer, eind)]
 
         return nummers
-
-
-
-    # def rest_rollen_uitrekenen(mes, totaal, aantal_per_rol):
-    #     """het totaal delen door de aantal per rol:
-    #
-    #     de restwaarde hier van geeft het aantal rollen dat te kort is"""
-    #     # todo check of dit nodig is in restwaarde
-    #     # if totaal % mes * aantal_per_rol == 0:
-    #     #     return 0
-    #
-    #     if totaal <= mes * aantal_per_rol:
-    #
-    #         print(f'aantal rest rollen = {abs((mes * aantal_per_rol - totaal) // aantal_per_rol)} uit if')
-    #         return abs((mes * aantal_per_rol - totaal) // aantal_per_rol)
-    #
-    #     else:
-    #
-    #         rest_rollen = mes - totaal // aantal_per_rol % mes
-    #         print(f'aantal rest rollen = {rest_rollen} uit else')
-    #         return rest_rollen
 
 
     def rest_rollen_uitrekenen(mes, totaal, aantal_per_rol):
@@ -249,6 +239,11 @@ def roll_summary():
     # haal de data uit de VDP dataframe met begin en eind slice wikkel combi
     def summary_rol_van_dataframe(dataframe_rol, rolnum, wikkel):
         begin, eind, aantal = begin_eind_dataframe(dataframe_rol)
+
+        #custom
+        # kleur = dataframe_rol.iat[0, 1]
+        # sluitetiket = pd.DataFrame([f"Rol {rolnum + 1} | wikkel = {wikkel} | {kleur} | {aantal} etiketten"])
+
         #f"Rol {rolnum + 1} | {begin} - {eind} | {aantal} etiketten"
         sluitetiket = pd.DataFrame([f"Rol {rolnum + 1} | wikkel = {wikkel} | {aantal} etiketten"])
 
@@ -257,7 +252,7 @@ def roll_summary():
 
         rol_sum=pd.concat([sluitetiket, begin, eind])
 
-        return rol_sum
+        return rol_sum.reset_index(drop=True)
     return summary_rol_van_dataframe
 
 

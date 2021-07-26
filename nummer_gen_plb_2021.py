@@ -34,37 +34,7 @@ def main():
         [sg.FolderBrowse(target="folder_voor_vdp_map")],
         # todo set default map
         # [sg.In(key="CSV file", size=(60, 10))],
-        [sg.Text("CSV_file")],
-        [
-            sg.Checkbox(
-                "gebruik een aangeleverde en bewerkte file.",
-                key="csv_file_checkbox",
-                default=False,
-            )
-        ],
-        [sg.In(key="csv_file_in_pad", size=(60, 10))],
-        [sg.FileBrowse(target="csv_file_in_pad")],
-        [sg.Text()],
-        [sg.CalendarButton("Datum", target=(1, 0), key='datum')],
 
-        [sg.Frame(layout=[
-            [sg.Checkbox("gebruik template", key="gebruik_template", default=False)],
-            [sg.Text("template", size=(15, 1)), sg.Input("??????????????", key="template")],
-            [sg.Checkbox("gebruik slice rechts", key="slice_rechts_check", default=False)],
-            [sg.Text("slice rechts", size=(15, 1)), sg.Input(3, key="slice_rechts")],
-            [sg.Checkbox("gebruik slice links", key="slice_links_check", default=False)],
-            [sg.Text("slice links", size=(15, 1)), sg.Input(3, key="slice_links")],
-            [sg.Checkbox("Wikkel handmatig", key="wikkel_handmatig", default=False)],
-            [sg.Text("Wikkel", size=(15, 1)), sg.Input(3, key="wikkel_handmatige_invoer")],
-
-
-            [sg.Text()],
-            [sg.Checkbox("SSCC18", key="sscc18", default=False, size=(10, 1)),
-             sg.Checkbox("null", key="null", default=False)],
-
-            [sg.Radio('Nederlands', "RADIO1", key="radio", default=True, size=(10, 1)),
-             sg.Radio('Duits', "RADIO1")]], title='Options', title_color='red', relief=sg.RELIEF_SUNKEN,
-            tooltip='taal voor sluitetiket')],
 
         [sg.Text()],
         # [
@@ -87,7 +57,7 @@ def main():
         [sg.Text("Beginnummer", size=(15, 1)), sg.InputText(1, key="begin_nummer")],
         [sg.Text("Veelvoud", size=(15, 1)), sg.InputText(1, key="veelvoud")],
         [sg.Text("posities", size=(15, 1)), sg.InputText(18, key="posities")],
-        [sg.Text("voorloop getal", size=(15, 1)), sg.InputText(0, key="vlg0")],
+        # [sg.Text("voorloop getal", size=(15, 1)), sg.InputText(0, key="vlg0")],
         [
             sg.Text("Aantal_per_rol", size=(15, 1)),
             sg.InputText(9500, key="aantal_per_rol"),
@@ -104,9 +74,43 @@ def main():
         [
             sg.Text("opmerkingen", size=(15, 1)),
             sg.InputText("Nabewerken NEE", key="opmerkingen"),
+            [sg.Text()],
+            [sg.Text("_" * 60)],
+
+            [sg.Text("Werken met aangeleverde of zelfgemaakte CSV_file of xlxs file")],
+            [
+                sg.Checkbox(
+                    "file met headers: kolom1,pdf,omschrijving, etc...",
+                    key="csv_file_checkbox",
+                    default=False,
+                )
+            ],
+            [sg.In(key="csv_file_in_pad", size=(60, 10))],
+            [sg.FileBrowse(target="csv_file_in_pad")],
+            [sg.Text()],
+            # [sg.CalendarButton("Datum", target=(1, 0), key='datum')],
+
+            [sg.Frame(layout=[
+                [sg.Checkbox("gebruik template", key="gebruik_template", default=False)],
+                [sg.Text("template", size=(15, 1)), sg.Input("??????????????", key="template")],
+                [sg.Checkbox("gebruik slice rechts", key="slice_rechts_check", default=False)],
+                [sg.Text("slice rechts", size=(15, 1)), sg.Input(3, key="slice_rechts")],
+                [sg.Checkbox("gebruik slice links", key="slice_links_check", default=False)],
+                [sg.Text("slice links", size=(15, 1)), sg.Input(3, key="slice_links")],
+                [sg.Checkbox("Wikkel handmatig", key="wikkel_handmatig", default=False)],
+                [sg.Text("Wikkel", size=(15, 1)), sg.Input(3, key="wikkel_handmatige_invoer")],
+
+                [sg.Text()],
+                [sg.Checkbox("SSCC18", key="sscc18", default=False, size=(10, 1)),
+                 sg.Checkbox("null", key="null", default=False)],
+
+                [sg.Radio('Nederlands', "RADIO1", key="radio", default=True, size=(10, 1)),
+                 sg.Radio('Duits', "RADIO1")]], title='Options', title_color='red', relief=sg.RELIEF_SUNKEN,
+                tooltip='taal voor sluitetiket')],
+
         ],
         [sg.Button("Ok"), sg.Cancel()],
-        [sg.Text("_" * 80)],
+        [sg.Text("_" * 60)],
         [sg.Text("SAVE of LOAD inputform", size=(35, 1))],
         # [sg.Text('Your Folder', size=(15, 1), justification='right'),
         #  sg.InputText('Default Folder', key='folder'), sg.FolderBrowse()],
@@ -145,6 +149,7 @@ def main():
 
             # print(button, values["order_number"], values["begin_nummer"], values["posities"])
             pad = Path(values["folder_voor_vdp_map"])
+            pad_file =  Path(values["csv_file_in_pad"])
             # datum = values["Datum"]
             # todo datetime    maken
             aantal_vdps = int(values['aantal_vdps'])
@@ -154,7 +159,7 @@ def main():
 
             veelvoud = int(values["veelvoud"])
             posities = int(values["posities"])
-            vlg = int(values["vlg0"])
+            vlg = 0
 
             begin_nummer_to_check = f'{begin_nummer:>{vlg}{posities}}'
             ic(begin_nummer_to_check)
@@ -201,32 +206,44 @@ def main():
             print(f'{values["radio"]=}')
             taal_var = values["radio"]
 
-            ic(values)
+            # ic(values)
+            if values["csv_file_in_pad"]:
+                ...
+                # todo functie om excel en of csv om tezetten naar dataframe na
+                # todo check of headers kloppen
 
-            # if not checkbox sscc __> hier komt lijstmaker sscc of komt in def lijstmaker
+                te_bewerken_dataframe_voor_plb_2020 = maak_csv_naar_dataframe(pad_file)
 
-            eerste_lijst_uit_input = nummer_lijst_bouwer(
-                begin_nummer,
-                totaal_aantal,
-                "leeg.pdf",
-                posities,
-                mes,
-                aantal_per_rol,
-                0,
-                prefix,
-                postfix,
-                sscc
-            )
-            # eerst bekijken of checkboxes aan staan dan aantal vpds
 
-            te_bewerken_dataframe_voor_plb_2020 = pd.DataFrame(
-                eerste_lijst_uit_input,
-                columns=["Kolom", "pdf", "omschrijving"],
-                dtype="str",
-            )
 
-            ic(te_bewerken_dataframe_voor_plb_2020.head())
-            ic(te_bewerken_dataframe_voor_plb_2020.tail())
+            else:
+
+            # if not checkbox sscc __>
+            # hier komt lijstmaker sscc of komt in def lijstmaker
+            # of input zelf gemaakte lijst
+
+                eerste_lijst_uit_input = nummer_lijst_bouwer(
+                    begin_nummer,
+                    totaal_aantal,
+                    "leeg.pdf",
+                    posities,
+                    mes,
+                    aantal_per_rol,
+                    0,
+                    prefix,
+                    postfix,
+                    sscc
+                )
+                # eerst bekijken of checkboxes aan staan dan aantal vpds
+
+                te_bewerken_dataframe_voor_plb_2020 = pd.DataFrame(
+                    eerste_lijst_uit_input,
+                    columns=["Kolom", "pdf", "omschrijving"],
+                    dtype="str",
+                )
+
+                ic(te_bewerken_dataframe_voor_plb_2020.head())
+                ic(te_bewerken_dataframe_voor_plb_2020.tail())
 
             if checkbox_slice_links:
                 te_bewerken_dataframe_voor_plb_2020[
@@ -419,41 +436,7 @@ def main():
                                                                  mes,
                                                                  vdp_alle_combinaties)
 
-                ######################## summary #########################
 
-                summary_lijst_van_lijst = lijst_opbreker(summary_rollen,
-                                                         mes,
-                                                         vdp_alle_combinaties)
-
-                verdeelde_summary_lijst = verdeling_met_slice(summary_lijst_van_lijst,
-                                                              combinatie_verdeling)
-                sum_df_lijst = []
-                for count, sum_roll in enumerate(verdeelde_summary_lijst):
-
-                    bestandsnaam = pad.joinpath(f'{ordernummer} Summary')
-
-                    naam = vdpnaam(bestandsnaam, count + 1, ".xlsx")
-                    htmlnaam = vdpnaam(bestandsnaam, count + 1, ".html")
-
-                    verwerkte_summary = stapel_df_baan(sum_roll)
-                    verwerkte_summary.columns = sum_kol
-                    scheiding = pd.DataFrame([f'vdp {count+1}'],columns=["VDP"]) # todo zet hier wikkel en andere informatie in svp
-                    sum_vdp = pd.concat([scheiding,verwerkte_summary,scheiding], axis=0)
-
-                    sum_df_lijst.append(sum_vdp)
-                    # todo index uit html en excl halen
-
-
-
-                    # verwerkte_summary.to_excel(naam, index=0)
-                    # verwerkte_summary.to_html(htmlnaam, index=0)
-
-
-
-                pd.concat(sum_df_lijst).fillna(" ").to_html(pad.joinpath(f'{ordernummer} Summary.html'),index=False)
-                pd.concat(sum_df_lijst).to_excel(pad.joinpath(f'{ordernummer} Summary.xlsx'),index=False)
-
-                ######################## einde summary #########################
 
                 ic(len(lijst_van_lijst_van_alle_rollen))
 
@@ -473,6 +456,7 @@ def main():
 
                     verwerkte_vdp = stapel_df_baan(vdp)
                     verwerkte_vdp.columns = kolom_namen
+                    ic(kolom_namen)
 
                     # WERKT
                     # vdp_maker(verwerkte_vdp, mes, Y_waarde, aantal_per_rol, wikkel).to_csv(naam, index=0)
@@ -483,6 +467,40 @@ def main():
                                          Y_waarde,
                                          pdf_kol,
                                          aantal_per_rol).to_csv(naam, index=0)
+
+
+                    ######################## summary #########################
+
+                    summary_lijst_van_lijst = lijst_opbreker(summary_rollen,
+                                                             mes,
+                                                             vdp_alle_combinaties)
+
+                    verdeelde_summary_lijst = verdeling_met_slice(summary_lijst_van_lijst,
+                                                                  combinatie_verdeling)
+                    sum_df_lijst = []
+                    for count, sum_roll in enumerate(verdeelde_summary_lijst):
+                        bestandsnaam = pad.joinpath(f'{ordernummer} Summary')
+
+                        naam = vdpnaam(bestandsnaam, count + 1, ".xlsx")
+                        htmlnaam = vdpnaam(bestandsnaam, count + 1, ".html")
+
+                        verwerkte_summary = stapel_df_baan(sum_roll)
+                        verwerkte_summary.columns = sum_kol
+                        scheiding = pd.DataFrame([f'vdp {count + 1}'],
+                                                 columns=["VDP"])  # todo zet hier wikkel en andere informatie in svp
+                        sum_vdp = pd.concat([scheiding, verwerkte_summary, scheiding], axis=0)
+
+                        sum_df_lijst.append(sum_vdp)
+                        # todo index uit html en excl halen
+
+                        # verwerkte_summary.to_excel(naam, index=0)
+                        # verwerkte_summary.to_html(htmlnaam, index=0)
+
+                    pd.concat(sum_df_lijst).fillna(" ").to_html(pad.joinpath(f'{ordernummer} Summary.html'),
+                                                                index=False)
+                    pd.concat(sum_df_lijst).to_excel(pad.joinpath(f'{ordernummer} Summary.xlsx'), index=False)
+
+                    ######################## einde summary #########################
 
 
 
