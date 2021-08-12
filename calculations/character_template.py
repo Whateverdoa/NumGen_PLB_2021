@@ -76,16 +76,31 @@ def compare_template_with_number_list():
 # newnumber=[]
 
 
+# def check_length_string_and_template_truths():
+#     '''takes the string and the template and only returns TRUE or FALSE
+#     if length is equal or != to length
+#     I dont want program to run  and will use try etc... to break program    and let user fix the error'''
+#     def check_lengtes_bool(number_string, counted_truths):
+#         if not len(number_string) == counted_truths:
+#             print(counted_truths)
+#             return False
+#         else:
+#             return True
+#
+#     return check_lengtes_bool
+
 def check_length_string_and_template_truths():
     '''takes the string and the template and only returns TRUE or FALSE
     if length is equal or != to length
     I dont want program to run  and will use try etc... to break program    and let user fix the error'''
-    def check_lengtes_bool(number_string, counted_truths):
-        if not len(number_string) == counted_truths:
-            print(counted_truths)
-            return False
-        else:
+
+    def check_lengtes_bool(number_string, counted_truths, sscc):
+        if sscc == True and (len(number_string) + 1) == counted_truths:
             return True
+        elif sscc == False and len(number_string) == counted_truths:
+            return True
+        else:
+            return False
 
     return check_lengtes_bool
 

@@ -272,7 +272,7 @@ def roll_summary():
 
         # f"Rol {rolnum + 1} | {begin} - {eind} | {aantal} etiketten"
         sluitetiket = pd.DataFrame(
-            [f"Rol {rolnum + 1} | wikkel = {wikkel} | {aantal} etiketten"]
+            [f"Rol {rolnum + 1} | wikkel = {wikkel + 3} | {aantal} etiketten"]
         )
 
         begin = pd.DataFrame([begin])
@@ -296,7 +296,7 @@ def html_sum_form_writer(user_designated_file_path, titel="summary", **kwargs):
     for key, value in kwargs.items():
         print(key, value)
 
-    naam_html_file = f"{user_designated_file_path}/_{titel}.html"
+    naam_html_file = f"{user_designated_file_path}/{titel}.html"
     with open(naam_html_file, "w") as f_html:
 
         #         for key, value in kwargs.items():
@@ -306,7 +306,7 @@ def html_sum_form_writer(user_designated_file_path, titel="summary", **kwargs):
         print('<html lang = "en">\n', file=f_html)
         print("     <head>\n", file=f_html)
         print("<meta charset='UTF-8>'\n", file=f_html)
-        print(f"<title>{titel.capitalize()}</title>\n", file=f_html)
+        # print(f"<title>{titel.capitalize()}</title>\n", file=f_html)
         print("     </head>", file=f_html)
         print("         <body>", file=f_html)
         for key, value in kwargs.items():

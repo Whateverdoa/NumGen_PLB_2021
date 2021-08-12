@@ -40,24 +40,12 @@ def main():
         [sg.In(key="folder_voor_vdp_map", size=(60, 10))],
         [sg.FolderBrowse(target="folder_voor_vdp_map")],
         # todo set default map
-        # [sg.In(key="CSV file", size=(60, 10))],
+
         [sg.Text()],
-        # [
-        #     sg.Checkbox("gebruik template", key="gebruik_template", default=False),
-        #     sg.Checkbox(),
-        #     sg.Checkbox(),
-        # ],
-        # [sg.Text()],
-        # [sg.Text("template", size=(15, 1)), sg.Input("??????????????", key="template")],
-        # [sg.Checkbox("gebruik slice rechts", key="slice_rechts_check", default=False)],
-        # [sg.Text("slice rechts", size=(5, 1)), sg.Input(3, key="slice_rechts")],
-        # [sg.Checkbox("gebruik slice links", key="slice_links_check", default=False)],
-        # [sg.Text("slice links", size=(5, 1)), sg.Input(3, key="slice_links")],
-        # [sg.Text()],
-        # [
+
         [
             sg.Text("Totaal aantal", size=(15, 1)),
-            sg.Input(361_000, key="totaal_aantal"),
+            sg.Input(100_000, key="totaal_aantal"),
         ],
         [sg.Text("Beginnummer", size=(15, 1)), sg.InputText(1, key="begin_nummer")],
         [sg.Text("Veelvoud", size=(15, 1)), sg.InputText(1, key="veelvoud")],
@@ -65,10 +53,10 @@ def main():
         # [sg.Text("voorloop getal", size=(15, 1)), sg.InputText(0, key="vlg0")],
         [
             sg.Text("Aantal_per_rol", size=(15, 1)),
-            sg.InputText(9500, key="aantal_per_rol"),
+            sg.InputText(1000, key="aantal_per_rol"),
         ],
-        [sg.Text("Mes", size=(15, 1)), sg.InputText(6, key="mes")],
-        [sg.Text("Y_waarde", size=(15, 1)), sg.InputText(11, key="Y_waarde")],
+        [sg.Text("Mes", size=(15, 1)), sg.InputText(4, key="mes")],
+        [sg.Text("Y_waarde", size=(15, 1)), sg.InputText(10, key="Y_waarde")],
         # [sg.Text("Wikkel", size=(15, 1)), sg.InputText(8, key="wikkelhandmatig")],
         [sg.Text("prefix", size=(15, 1)), sg.InputText("", key="prefix")],
         [sg.Text("postfix", size=(15, 1)), sg.InputText("", key="postfix")],
@@ -96,7 +84,7 @@ def main():
                     layout=[
                         [
                             sg.Checkbox(
-                                "gebruik template bij sscc",
+                                "gebruik template bij sscc, 1 extra '?' toevoegen voor de cd",
                                 key="gebruik_template",
                                 default=False,
                             )
@@ -333,14 +321,14 @@ def main():
 
             if check_template:
                 if not template_length_checker(
-                    begin_nummer_to_check, template_array_truths
+                    begin_nummer_to_check, template_array_truths, sscc
                 ):
                     print(
                         f"nummer is {len(begin_nummer_to_check)} tekens lang, template is {template_array_truths} tekens lang en dus zijn niet gelijk."
                     )
 
             if check_template and template_length_checker(
-                begin_nummer_to_check, template_array_truths
+                begin_nummer_to_check, template_array_truths, sscc
             ):
                 te_bewerken_dataframe_voor_plb_2020[
                     "hr_template"
