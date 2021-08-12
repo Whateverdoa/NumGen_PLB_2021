@@ -273,6 +273,7 @@ def main():
                     prefix,
                     postfix,
                     sscc,
+                    veelvoud
                 )
                 # eerst bekijken of checkboxes aan staan dan aantal vpds
 

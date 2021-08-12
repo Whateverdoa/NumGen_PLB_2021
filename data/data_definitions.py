@@ -47,7 +47,7 @@ def calculate(data: str) -> str:
     return convert(10 - (total_sum % 10), "luhn")
 
 
-# todo toevoegen ean13  etc en sscc18
+# todo toevoegen veelvoud
 def nummer_lijst_bouwer(
     begin_nummer,
     totaal,
@@ -59,6 +59,7 @@ def nummer_lijst_bouwer(
     prefix="",
     postfix="",
     sscc=False,
+    veel=1
 ):
     """met de lijst output word een dataframe gemaakt
     #todo plaats andere zoals sscc en ean 13 ook in deze def?"""
@@ -72,7 +73,7 @@ def nummer_lijst_bouwer(
         eind = begin_nummer + totaal
         nummers = [
             (f"{prefix}{x:>{vlg}{posities}}{postfix}", f"{pdf}", "")
-            for x in range(begin_nummer, eind)
+            for x in range(begin_nummer, eind) for i in range(veel)
         ]
         nummers_df = pd.DataFrame(
             nummers, columns=["kolom1", "pdf", "omschrijving"], dtype="str"
@@ -85,7 +86,7 @@ def nummer_lijst_bouwer(
         eind = begin_nummer + totaal
         nummers = [
             [f"{x:>{0}{posities}}{gs1.calculate(str(x))}", f"{pdf}", " "]
-            for x in range(begin_nummer, eind)
+            for x in range(begin_nummer, eind) for i in range(veel)
         ]
 
         return nummers
