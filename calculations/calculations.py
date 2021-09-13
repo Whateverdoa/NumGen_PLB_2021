@@ -27,7 +27,7 @@ def dataframe_cutter(df, blok_lengte):
     """cuts dataframe on length . ready made to concat because of reset_index
     blok_lengte =  de lengte van een VDP of een gedeelte van een VDP"""
     list_of_df = [
-        df.loc[i : i + blok_lengte - 1, :].reset_index(drop=True)
+        df.loc[i: i + blok_lengte - 1, :].reset_index(drop=True)
         for i in range(0, len(df), blok_lengte)
     ]
     return list_of_df
@@ -71,8 +71,8 @@ def combinaties_per_vdp_berekenen():
         print(f"per deel ceil {eerste_combinatie}")
 
         if (
-            combinaties_per_deel_rest == 0
-            or totaal_aantal_combinaties % aantal_vdps == 0
+                combinaties_per_deel_rest == 0
+                or totaal_aantal_combinaties % aantal_vdps == 0
         ):
 
             volgende_waardes = [int(combinaties_per_deel) for x in range(aantal_vdps)]
@@ -366,8 +366,8 @@ def inloop_uitloop_stans(df, wikkel, etiket_y, kolomnaam_vervang_waarde, apr):
         [
             x
             for x in itertools.islice(
-                generator, begin_laatste_sluit, begin_laatste_sluit + 1
-            )
+            generator, begin_laatste_sluit, begin_laatste_sluit + 1
+        )
         ]
     )
 

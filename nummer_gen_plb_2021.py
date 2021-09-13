@@ -64,7 +64,7 @@ def main():
         [sg.Text("kern", size=(15, 1)), sg.InputText(76, key="kern")],
         [
             sg.Text("opmerkingen", size=(15, 1)),
-            sg.InputText("Nabewerken NEE", key="opmerkingen"),
+            sg.InputText("", key="opmerkingen"),
             [sg.Text()],
             [sg.Text("_" * 60)],
             [sg.Text("Werken met aangeleverde of zelfgemaakte CSV_file of xlxs file")],
@@ -249,7 +249,8 @@ def main():
             taal_var = values["radio"]
 
             # ic(values)
-            if values["csv_file_in_pad"]:
+            # todo let op identieke benaming denk dat als er een file in staat dat het altijd true is! csv_file_checkbox
+            if values["csv_file_checkbox"]:
                 ...
                 # todo functie om excel en of csv om tezetten naar dataframe na
                 # todo check of headers kloppen
@@ -602,7 +603,7 @@ def main():
                     "Wikkel": f"{wikkel + 3} etiketten inclusief sluitetiket",
                     "Inloop en uitloop": f"{Y_waarde} x 10 sheets.",
                     # 'De files staan hier': naar_folder_pad,
-                    "Opmerkingen": "Nabewerken JA"
+                    "Opmerkingen": opmerkingen,
                 }
 
                 html_sum_form_writer(pad, ordernummer, **keywordargs)

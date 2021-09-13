@@ -80,6 +80,18 @@ def nummer_lijst_bouwer(
         )
         return nummers
 
+
+    def maak_rest_lijst(begin_nummer, totaal, pdf):
+        """list comp voor maken nummer lijst, 3 kolommen
+        kijk voor benamingen in project lijst bewerken"""
+        eind = begin_nummer + totaal
+        nummers = [
+            (f"{prefix}{x:>{vlg}{posities}}{postfix}", f"{pdf}", "")
+            for x in [begin_nummer] for i in range(eind)
+        ]
+
+        return nummers
+
     def maak_sscc_lijst(begin_nummer, totaal, pdf="leeg.pdf"):
         """list comp voor maken nummer lijst, 3 kolommen
         kijk voor benamingen in project lijst bewerken"""
@@ -87,6 +99,19 @@ def nummer_lijst_bouwer(
         nummers = [
             [f"{x:>{0}{posities}}{gs1.calculate(str(x))}", f"{pdf}", " "]
             for x in range(begin_nummer, eind) for i in range(veel)
+        ]
+
+        return nummers
+
+
+    def maak_rest_sscc_lijst(begin_nummer, totaal, pdf="leeg.pdf"):
+
+        """list comp voor maken nummer lijst, 3 kolommen
+        kijk voor benamingen in project lijst bewerken"""
+        eind = begin_nummer + totaal
+        nummers = [
+            [f"{x:>{0}{posities}}{gs1.calculate(str(x))}", f"{pdf}", " "]
+            for x in [begin_nummer] for i in range(eind)
         ]
 
         return nummers
@@ -116,8 +141,8 @@ def nummer_lijst_bouwer(
         # rest_lijst = maak_sscc_lijst(begin_nummer, (rest * aantal_per_rol), "stans.pdf")
 
         if rest != 0:
-            rest_lijst = maak_sscc_lijst(
-                begin_nummer, (rest * aantal_per_rol), "stans.pdf"
+            rest_lijst = maak_rest_sscc_lijst(
+                0, (rest * aantal_per_rol), "stans.pdf"
             )
 
             totlijst = num_lijst + rest_lijst
@@ -132,8 +157,8 @@ def nummer_lijst_bouwer(
         # rest_lijst = maak_simpele_lijst(begin_nummer, (rest * aantal_per_rol), "stans.pdf")
 
         if rest != 0:
-            rest_lijst = maak_simpele_lijst(
-                begin_nummer, (rest * aantal_per_rol), "stans.pdf"
+            rest_lijst = maak_rest_lijst(
+                0, (rest * aantal_per_rol), "stans.pdf"
             )
 
             totlijst = num_lijst + rest_lijst
