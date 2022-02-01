@@ -118,7 +118,7 @@ def template_translate_2_bool_list():
 
 
 def number_translated_to_template():
-    """ 1 input number as string (to list)
+    """ 1 input number as string (to list)-> explicit gemaakt.
         2 a template
         3 bool  list of template"""
 
@@ -127,6 +127,7 @@ def number_translated_to_template():
         ik denk dat hier een decorator zou moeten komen"""
         functie_compare_t_w_n = func
         new_number = []
+        number_to_list=str(number_to_list)
         list_number = list(number_to_list)
         template_list = list(template_string)
 

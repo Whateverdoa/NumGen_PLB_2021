@@ -23,6 +23,8 @@ from pathlib import Path
 # from rollen import rest_uitrekenen, rol_num_dikt, df_lege_csv_rol_builder_met_rolnummer
 
 # todo checkbox rechtstreeks lijst invoeren lijst
+# todo PermissionError: [Errno 13] Permission denied:
+# 'M:\\ESKO\\Products\\H\\HOZA B.V\\21000000-21000999\\434921000066\\VDP\\bewerkingen\\202203951 summary.xlsx'
 
 
 def main():
@@ -442,6 +444,8 @@ def main():
                 # naamgeving vdp csv zonder index alles als string
 
                 vdp_bestandsnaam = pad.joinpath(f"{ordernummer} VDP.csv")
+                vdp_bestandsnaamexcel = pad.joinpath(f"{ordernummer} VDP.xlsx")
+
 
                 # vdp_maker(VDP, mes, Y_waarde, aantal_per_rol, wikkel).to_csv(vdp_bestandsnaam, index=0)
                 vdp_1_df= inloop_uitloop_stans(
@@ -449,6 +453,8 @@ def main():
                 )
                 meterlijst = vdp_meters_uit_df_shape(vdp_1_df,hoogte)
                 vdp_1_df.to_csv(vdp_bestandsnaam, index=0)
+                vdp_1_df.to_excel(vdp_bestandsnaamexcel)
+
 
                 # VDP.to_csv("gteststr1.csv")
 

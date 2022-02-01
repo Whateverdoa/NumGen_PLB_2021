@@ -122,7 +122,7 @@ def nummer_lijst_bouwer(
 
             # print(f'aantal rest rollen = {abs((mes * aantal_per_rol - totaal) // aantal_per_rol)} uit if')
             return (
-                abs((mes * aantal_per_rol - totaal) // aantal_per_rol) * aantal_per_rol
+                abs((mes * aantal_per_rol - totaal) // aantal_per_rol)
             )
 
         elif (totaal // aantal_per_rol) % mes == 0:
