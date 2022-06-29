@@ -17,9 +17,9 @@ apr = 1000
 
 def test_rest_rollen_uitrekenen():
     """gedeelte van lijstmaker"""
-    mes, totaal, apr = 4, 1_000_000, 1000
-    test = rest_rollen_uitrekenen(mes, totaal, apr)
-    assert test == 0
+    mes, totaal, apr, vv = 5, 3_500, 1000, 2
+    test = rest_rollen_uitrekenen(mes, totaal, apr, vv)
+    assert test == 3
 
 
 # def test_vdp_aantal_bepalen():

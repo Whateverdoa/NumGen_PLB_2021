@@ -87,7 +87,7 @@ def nummer_lijst_bouwer(
         eind = begin_nummer + totaal
         nummers = [
             (f"{prefix}{x:>{vlg}{posities}}{postfix}", f"{pdf}", "")
-            for x in [begin_nummer] for i in range(eind)
+            for x in [begin_nummer] for i in range(eind) for i in range(veel)
         ]
 
         return nummers
@@ -111,33 +111,33 @@ def nummer_lijst_bouwer(
         eind = begin_nummer + totaal
         nummers = [
             [f"{x:>{0}{posities}}{gs1.calculate(str(x))}", f"{pdf}", " "]
-            for x in [begin_nummer] for i in range(eind)
+            for x in [begin_nummer] for i in range(eind) for i in range(veel)
         ]
 
         return nummers
 
-    def rest_rollen_uitrekenen(mes, totaal, aantal_per_rol):
+    def rest_rollen_uitrekenen(mes, totaal, aantal_per_rol, veel):
         """het totaal delen door de aantal per rol  de restwaarde hievan geeft het aantal rollen dat te kort is"""
-        if totaal <= mes * aantal_per_rol:
+        if totaal*veel <= mes * aantal_per_rol:
 
             # print(f'aantal rest rollen = {abs((mes * aantal_per_rol - totaal) // aantal_per_rol)} uit if')
             return (
-                abs((mes * aantal_per_rol - totaal) // aantal_per_rol)
+                abs((mes * aantal_per_rol - totaal*veel) // aantal_per_rol)
             )
 
-        elif (totaal // aantal_per_rol) % mes == 0:
+        elif (totaal*veel // aantal_per_rol) % mes == 0:
             return 0
             # print(f'aantal rest rollen = {rest_rollen} uit else')
         else:
 
             return (
-                (mes - (totaal // aantal_per_rol) % mes) * aantal_per_rol
+                (mes - (totaal*veel // aantal_per_rol) % mes) * aantal_per_rol
             ) // aantal_per_rol
 
     if sscc:
 
         num_lijst = maak_sscc_lijst(begin_nummer, totaal, pdf)
-        rest = rest_rollen_uitrekenen(mes, totaal, aantal_per_rol)
+        rest = rest_rollen_uitrekenen(mes, totaal, aantal_per_rol, veel)
         # rest_lijst = maak_sscc_lijst(begin_nummer, (rest * aantal_per_rol), "stans.pdf")
 
         if rest != 0:
@@ -153,7 +153,7 @@ def nummer_lijst_bouwer(
 
     elif sscc == False:
         num_lijst = maak_simpele_lijst(begin_nummer, totaal, pdf)
-        rest = rest_rollen_uitrekenen(mes, totaal, aantal_per_rol)
+        rest = rest_rollen_uitrekenen(mes, totaal, aantal_per_rol, veel)
         # rest_lijst = maak_simpele_lijst(begin_nummer, (rest * aantal_per_rol), "stans.pdf")
 
         if rest != 0:
@@ -169,25 +169,23 @@ def nummer_lijst_bouwer(
 
 
 # dit is een functie die in lijstmaker zit
-def rest_rollen_uitrekenen(mes, totaal, aantal_per_rol):
-    """het totaal delen door de aantal per rol:
+def rest_rollen_uitrekenen(mes, totaal, aantal_per_rol, veel):
+    """het totaal delen door de aantal per rol  de restwaarde hievan geeft het aantal rollen dat te kort is"""
+    if totaal * veel <= mes * aantal_per_rol:
 
-    de restwaarde hier van geeft het aantal rollen dat te kort is"""
-    if totaal % mes * aantal_per_rol == 0:
-        return 0
-
-    if totaal <= mes * aantal_per_rol:
-
-        print(
-            f"aantal rest rollen = {abs((mes * aantal_per_rol - totaal) // aantal_per_rol)} uit if"
+        # print(f'aantal rest rollen = {abs((mes * aantal_per_rol - totaal) // aantal_per_rol)} uit if')
+        return (
+            abs((mes * aantal_per_rol - totaal * veel) // aantal_per_rol)
         )
-        return abs((mes * aantal_per_rol - totaal) // aantal_per_rol)
 
+    elif (totaal * veel // aantal_per_rol) % mes == 0:
+        return 0
+        # print(f'aantal rest rollen = {rest_rollen} uit else')
     else:
 
-        rest_rollen = mes - (totaal // aantal_per_rol) % mes
-        print(f"aantal rest rollen = {rest_rollen} uit else")
-        return rest_rollen
+        return (
+                       (mes - (totaal * veel // aantal_per_rol) % mes) * aantal_per_rol
+               ) // aantal_per_rol
 
 
 # gebruikt bij 1 vdp vooralsnog
