@@ -208,7 +208,7 @@ def roll():
         dfwikkel2 = dfwikkel_a[:functiewikkel]
 
         rol_met_wikkel_en_sluit: Union[DataFrame, Series] = pd.concat(
-            [dfwikkel1, sluit, dfwikkel2, dataframe_rol]
+            [dfwikkel1, sluit, sluit, dfwikkel2, dataframe_rol]
         ).reset_index(drop=True)
 
         ic(rol_met_wikkel_en_sluit.head(20))
@@ -272,7 +272,7 @@ def rol_uit_generator():
         inloop_rol2["pdf"] = "stans.pdf"
 
         rol_met_wikkel_en_sluit: Union[DataFrame, Series] = pd.concat(
-            [inloop_rol, sluit, inloop_rol2, dataframe_rol]
+            [inloop_rol, sluit, sluit, inloop_rol2, dataframe_rol]
         ).reset_index(drop=True)
 
         return rol_met_wikkel_en_sluit
