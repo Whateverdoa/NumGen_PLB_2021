@@ -417,11 +417,11 @@ def dataframe_from_csv():
 
         elif Path(file_in).suffix == ".xlsx":
             ic(Path(file_in).suffix)
-            file_to_generate_on = pd.read_excel(file_in, engine="openpyxl")
+            file_to_generate_on = pd.read_excel(file_in, dtype=str, engine="openpyxl")
 
         elif Path(file_in).suffix == ".xls":
             ic(Path(file_in).suffix)
-            file_to_generate_on = pd.read_excel(file_in)
+            file_to_generate_on = pd.read_excel(file_in, dtype=str)
 
         return file_to_generate_on
 

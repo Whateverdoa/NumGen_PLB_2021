@@ -255,10 +255,16 @@ def main():
             # todo let op identieke benaming denk dat als er een file in staat dat het altijd true is! csv_file_checkbox
             if values["csv_file_checkbox"]:
                 ...
-                # todo functie om excel en of csv om tezetten naar dataframe na
+                # todo functie om excel en of csv omte zetten naar dataframe na
                 # todo check of headers kloppen
 
                 te_bewerken_dataframe_voor_plb_2020 = maak_csv_naar_dataframe(pad_file)
+                # te_bewerken_dataframe_voor_plb_2020 = pd.read_excel(pad_file, dtype=str)
+                # te_bewerken_dataframe_voor_plb_2020 = pd.DataFrame(te_bewerken_dataframe_voor_plb_2020, dtype=str)
+                print(f'{type(te_bewerken_dataframe_voor_plb_2020)=}')
+
+
+
 
             else:
 
