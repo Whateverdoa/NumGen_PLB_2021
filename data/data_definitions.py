@@ -208,7 +208,7 @@ def roll():
         dfwikkel2 = dfwikkel_a[:functiewikkel]
 
         rol_met_wikkel_en_sluit: Union[DataFrame, Series] = pd.concat(
-            [dfwikkel1, sluit, dfwikkel2, dataframe_rol]
+            [dfwikkel1, sluit, sluit, dfwikkel2, dataframe_rol]
         ).reset_index(drop=True)
 
         ic(rol_met_wikkel_en_sluit.head(20))

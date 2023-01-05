@@ -622,6 +622,8 @@ def main():
                 html_sum_form_writer(pad, ordernummer, **keywordargs)
 
                 ###################################
+                for val in values:
+                    print(val)
 
 
 if __name__ == "__main__":
