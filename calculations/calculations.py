@@ -222,91 +222,6 @@ def stapel_df_baan(lijst_in):
     return vdp.reset_index(drop=True)
 
 
-# deprecated
-def VDP_inloop_uitloop():
-    def filter_kolommen_pdf(mes):
-        # defenitie gekopieerd van
-        # headers_for_totaal_kolommen()
-        df_rol_kolommen_lijst = ["pdf"]
-        count = 1
-        kolomnaam_vervang_waarde = []
-        for _ in range(mes):
-            for kolomnaam in df_rol_kolommen_lijst:
-                # print(kolomnaam, count)
-                header = f"{kolomnaam}_{count}"
-                kolomnaam_vervang_waarde.append(header)
-            count += 1
-        return kolomnaam_vervang_waarde
-
-    def vdp_met_in_en__uit(vdp_dataframe, mes, etiket_y, aantal_per_rol, wikkel):
-        """voegt in en uitloop toe aan de vdp,
-
-        voor de inloop sluit en uitloop sluit etiketten"""
-
-        kolomnaam_vervang_waarde = filter_kolommen_pdf(mes)
-        inloop = (etiket_y * 10) - wikkel
-        print(vdp_dataframe.columns)
-
-        # kopieer de dataframe
-        # 1 keer voor echte data en 1 keer voor de in  uitloop
-        # begin_inloop = vdp_dataframe.copy()
-        df_voor_roldata = vdp_dataframe.copy()
-
-        # selecteer sluit etiket
-        begin_inloop_sluit = df_voor_roldata.iloc[2:3]
-
-        roldata_begin = wikkel + 3
-        roldata_eind = roldata_begin + etiket_y
-
-        # echte begin data
-        roldata = df_voor_roldata.iloc[roldata_begin:roldata_eind]
-
-        # verander leeg naar stans.pdf voor inloop en uitloop
-
-        begin_inloop = vdp_dataframe.copy()
-        # begin_inloop.loc[~begin_inloop.index.duplicated(), :]
-        ic(begin_inloop.index.is_unique)
-        # begin_inloop[kolomnaam_vervang_waarde] = "stans.pdf"  # #todo werkt bij 1 maar niet bij meerdere
-        begin_inloop.replace("leeg.pdf", "stans.pdf")
-
-        inloop_df = begin_inloop.iloc[4:inloop]
-        print(inloop_df.columns)
-        inloop_df[kolomnaam_vervang_waarde] = "stans.pdf"
-
-        # echte uitloop data
-        data_uitloop = df_voor_roldata[-etiket_y:]
-        uitloop = (etiket_y * 10) - wikkel
-        uitloop_df = begin_inloop.iloc[-uitloop:]
-        uitloop_df[kolomnaam_vervang_waarde] = "stans.pdf"
-
-        # todo berekenen ish met rol
-        b_eindsluit = -(aantal_per_rol + wikkel + 1)
-        eindsluit = -(aantal_per_rol + wikkel)
-        uitloopsluit = begin_inloop.iloc[b_eindsluit:eindsluit]
-
-        # voeg alles samen voor een vdp
-        vdp_met_in_en_uitloop = pd.concat(
-            [
-                roldata,
-                begin_inloop_sluit,
-                uitloopsluit,
-                inloop_df,
-                vdp_dataframe,
-                uitloop_df,
-                begin_inloop_sluit,
-                uitloopsluit,
-                data_uitloop,
-            ]
-        )
-
-        return vdp_met_in_en_uitloop
-
-    return vdp_met_in_en__uit
-
-
-vdp_maker = VDP_inloop_uitloop()
-
-
 def filter_kolommen_pdf(mes, de_kolomnaam):
     # defenitie gekopieerd van
     # headers_for_totaal_kolommen()
@@ -352,8 +267,8 @@ def inloop_uitloop_stans(df, wikkel, etiket_y, kolomnaam_vervang_waarde, apr):
     ic(data3.head())
 
     generator = df.itertuples(index=0)
-
-    for seq in itertools.islice(generator, 3, loop):
+    # moved 0ne line for double sluitetiket
+    for seq in itertools.islice(generator, 4, loop):
         nieuwe_df.append(seq)
     inloopDF = pd.DataFrame(nieuwe_df)
     inloopDF[kolomnaam_vervang_waarde] = "stans.pdf"
@@ -373,7 +288,7 @@ def inloop_uitloop_stans(df, wikkel, etiket_y, kolomnaam_vervang_waarde, apr):
 
     # inloopDF.reset_index()
 
-    # in en uitloop kunnen hier gegenereerd worden als laatse stans eroverheen
+    # in en uitloop kunnen hier gegenereerd worden als laatste stans eroverheen
 
     indat = pd.concat(
         [
