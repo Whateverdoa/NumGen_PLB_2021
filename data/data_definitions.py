@@ -2,6 +2,7 @@ from typing import Union
 import itertools
 import pandas as pd
 from pandas import DataFrame, Series
+from loguru import logger
 
 from checkdigit._data import cleanse, convert
 from checkdigit import gs1
@@ -10,14 +11,14 @@ from calculations.calculations import *
 from pathlib import Path
 
 wdirpad = Path.cwd().joinpath("pytest_csv_excel_testfiles")
-ic(wdirpad)
+logger.debug(f"wdirpad: {wdirpad}")
 csvfile = wdirpad.joinpath("csv_utf_8_test_file.csv")
-ic(csvfile)
+logger.debug(f"csvfile: {csvfile}")
 excelfile = wdirpad.joinpath("excel_test_file.xlsx")
 
 
 # testcsv = maak_csv_naar_dataframe(excelfile)
-# ic(testcsv.head())
+# logger.debug(f"testcsv.head(): {testcsv.head()}")
 
 
 def calculate(data: str) -> str:
@@ -42,7 +43,7 @@ def calculate(data: str) -> str:
 
             total_sum += digit
 
-        # ic(total_sum)
+        # logger.debug(f"total_sum: {total_sum}")
         position_counter += 1
     return convert(10 - (total_sum % 10), "luhn")
 
@@ -120,14 +121,14 @@ def nummer_lijst_bouwer(
         """het totaal delen door de aantal per rol  de restwaarde hievan geeft het aantal rollen dat te kort is"""
         if totaal*veel <= mes * aantal_per_rol:
 
-            # print(f'aantal rest rollen = {abs((mes * aantal_per_rol - totaal) // aantal_per_rol)} uit if')
+            # logger.debug(f'aantal rest rollen = {abs((mes * aantal_per_rol - totaal) // aantal_per_rol)} uit if')
             return (
                 abs((mes * aantal_per_rol - totaal*veel) // aantal_per_rol)
             )
 
         elif (totaal*veel // aantal_per_rol) % mes == 0:
             return 0
-            # print(f'aantal rest rollen = {rest_rollen} uit else')
+            # logger.debug(f'aantal rest rollen = {rest_rollen} uit else')
         else:
 
             return (
@@ -173,14 +174,14 @@ def rest_rollen_uitrekenen(mes, totaal, aantal_per_rol, veel):
     """het totaal delen door de aantal per rol  de restwaarde hievan geeft het aantal rollen dat te kort is"""
     if totaal * veel <= mes * aantal_per_rol:
 
-        # print(f'aantal rest rollen = {abs((mes * aantal_per_rol - totaal) // aantal_per_rol)} uit if')
+        # logger.debug(f'aantal rest rollen = {abs((mes * aantal_per_rol - totaal) // aantal_per_rol)} uit if')
         return (
             abs((mes * aantal_per_rol - totaal * veel) // aantal_per_rol)
         )
 
     elif (totaal * veel // aantal_per_rol) % mes == 0:
         return 0
-        # print(f'aantal rest rollen = {rest_rollen} uit else')
+        # logger.debug(f'aantal rest rollen = {rest_rollen} uit else')
     else:
 
         return (
@@ -211,7 +212,7 @@ def roll():
             [dfwikkel1, sluit, sluit, dfwikkel2, dataframe_rol]
         ).reset_index(drop=True)
 
-        ic(rol_met_wikkel_en_sluit.head(20))
+        logger.debug(f"rol_met_wikkel_en_sluit:\n{rol_met_wikkel_en_sluit.head(20)}")
 
         return rol_met_wikkel_en_sluit
 
@@ -250,12 +251,12 @@ def rol_uit_generator():
         language = taal_sluitetiket()
 
         sluitetiket = language(dataframe_rol, taal, rolnum, posities)
-        # print(f'{sluitetiket=}') werkt als ic in python 3.9
+        # logger.debug(f'{sluitetiket=}') werkt als ic in python 3.9
 
         generator = dataframe_rol.itertuples(index=0)
 
         inloop_rol = pd.DataFrame([x for x in itertools.islice(generator, 0, 2)])
-        print(inloop_rol)
+        logger.debug(f"inloop_rol:\n{inloop_rol}")
         inloop_rol["pdf"] = "stans.pdf"
 
         generator = dataframe_rol.itertuples(index=0)
@@ -318,7 +319,7 @@ def html_sum_form_writer(user_designated_file_path, titel="summary", **kwargs):
     css link toevoegen
     """
     for key, value in kwargs.items():
-        print(key, value)
+        logger.info(f"{key} {value}")
 
     naam_html_file = f"{user_designated_file_path}/{titel}.html"
     with open(naam_html_file, "w") as f_html:
