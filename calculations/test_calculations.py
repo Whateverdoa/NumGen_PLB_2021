@@ -51,7 +51,7 @@ def test_csv_name_giver():
 
 
 def test_dataframe_from_csv():
-    # ic(csvfile)
+    # logger.debug(f"csvfile: {csvfile}")
 
     testcsv = maak_csv_naar_dataframe(csvfile)
     assert type(testcsv) == []

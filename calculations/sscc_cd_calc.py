@@ -1,7 +1,7 @@
 import pandas as pd
+from loguru import logger
 from checkdigit._data import cleanse, convert
 from checkdigit import gs1
-from icecream import ic
 
 def calculate(data: str) -> str:
     """Calculates the luhn check digit.
@@ -25,14 +25,14 @@ def calculate(data: str) -> str:
 
             total_sum += digit
 
-        # ic(total_sum)
+        # logger.debug(f"total_sum: {total_sum}")
         position_counter += 1
     return convert(10 - (total_sum % 10), "luhn")
 
 
 sscc = 8717496330005000
-# ic(calculate(sscc))
-ic(gs1.calculate("08717496330005005"))
+# logger.debug(f"calculate(sscc): {calculate(sscc)}")
+logger.debug(f"gs1.calculate: {gs1.calculate('08717496330005005')}")
 
 
 
@@ -46,8 +46,8 @@ def maak_sscc_lijst(begin_nummer, totaal, pdf='leeg.pdf'):
 
     return nummers
 
-print(maak_sscc_lijst(sscc, 10))
+logger.info(f"maak_sscc_lijst: {maak_sscc_lijst(sscc, 10)}")
 
 df = pd.DataFrame(maak_sscc_lijst(sscc, 51000), columns=["kolom1", "pdf", "omschrijving"], dtype="str")
-ic(df.head(50))
+logger.debug(f"df.head(50): {df.head(50)}")
 df.to_csv('check.csv',sep=";", encoding="utf-8",index=0)

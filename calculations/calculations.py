@@ -1,13 +1,13 @@
 """ the calculations represent decisions or planning.
 They don't affect the world when they run"""
 import math
+from loguru import logger
 from openpyxl import load_workbook
 import xlrd
 import xlwt
 import itertools
 import pandas as pd
 from pathlib import Path
-from icecream import ic
 
 
 def delen(totaal_file_lengte, kolommen):
@@ -61,14 +61,14 @@ def combinaties_per_vdp_berekenen():
         combinatie_lijst = []
 
         combinaties_per_deel_rest = totaal_aantal_combinaties / aantal_vdps % mes
-        print(f"per deel rest {combinaties_per_deel_rest}")
+        logger.debug(f"per deel rest {combinaties_per_deel_rest}")
 
         combinaties_per_deel = totaal_aantal_combinaties / aantal_vdps
 
-        print(f"per deel  {combinaties_per_deel}")
+        logger.debug(f"per deel  {combinaties_per_deel}")
 
         eerste_combinatie = math.ceil(combinaties_per_deel)
-        print(f"per deel ceil {eerste_combinatie}")
+        logger.debug(f"per deel ceil {eerste_combinatie}")
 
         if (
                 combinaties_per_deel_rest == 0
@@ -87,16 +87,16 @@ def combinaties_per_vdp_berekenen():
                     for x in range(aantal_vdps - 1)
                     if aantal_vdps - 1 != 1
                 ]
-                print(volgende_waardes)
+                logger.debug(f"volgende_waardes: {volgende_waardes}")
                 laatste_waarde = abs(
                     totaal_aantal_combinaties - (sum(volgende_waardes))
                 )
-                print(f"laatste_waarde absoluut =  {laatste_waarde}")
+                logger.debug(f"laatste_waarde absoluut =  {laatste_waarde}")
                 return volgende_waardes + [laatste_waarde]
 
             if aantal_vdps == 2:
                 laatste_waarde = abs(totaal_aantal_combinaties - eerste_combinatie)
-                print(f"laatste_waarde absoluut =  {laatste_waarde}")
+                logger.debug(f"laatste_waarde absoluut =  {laatste_waarde}")
                 return [eerste_combinatie] + [laatste_waarde]
 
         # als het blok een restwaarde heeft van 0
@@ -116,7 +116,7 @@ def rollen_uit_aantallen():
             rollen = [x // aantal_per_rol for x in lijst_functie]
             return rollen
         else:
-            print("ërror message aantal vdps en lijst komt niet overeen")
+            logger.error("error message aantal vdps en lijst komt niet overeen")
             return False
 
     return check
@@ -241,12 +241,12 @@ def inloop_uitloop_stans(df, wikkel, etiket_y, kolomnaam_vervang_waarde, apr):
     # todo transform with list comprehensions
 
     loop = (etiket_y * 10) - wikkel
-    ic(wikkel)
-    ic(loop)
+    logger.debug(f"wikkel: {wikkel}")
+    logger.debug(f"loop: {loop}")
     generator = df.itertuples(index=0)
 
     einde_df = len(df)
-    ic(einde_df)
+    logger.debug(f"einde_df: {einde_df}")
     data_df = []
     nieuwe_df = []
 
@@ -258,13 +258,13 @@ def inloop_uitloop_stans(df, wikkel, etiket_y, kolomnaam_vervang_waarde, apr):
     data2 = pd.DataFrame(
         [x for x in itertools.islice(generator, wikkel, wikkel + etiket_y)]
     )
-    ic(data2.head())
+    logger.debug(f"data2.head(): {data2.head()}")
 
     generator = df.itertuples(index=0)
     data3 = pd.DataFrame(
         [x for x in itertools.islice(generator, (einde_df - etiket_y), einde_df)]
     )
-    ic(data3.head())
+    logger.debug(f"data3.head(): {data3.head()}")
 
     generator = df.itertuples(index=0)
     # moved 0ne line for double sluitetiket
@@ -276,7 +276,7 @@ def inloop_uitloop_stans(df, wikkel, etiket_y, kolomnaam_vervang_waarde, apr):
     generator = df.itertuples(index=0)
 
     begin_laatste_sluit = einde_df - (apr + (wikkel + 1))
-    ic(begin_laatste_sluit)
+    logger.debug(f"begin_laatste_sluit: {begin_laatste_sluit}")
     laatste_sluit = pd.DataFrame(
         [
             x
@@ -325,17 +325,17 @@ def dataframe_from_csv():
 
         if Path(file_in).suffix == ".csv":
             # extra arg = ";"or ","
-            ic(Path(file_in).suffix)
+            logger.debug(f"suffix: {Path(file_in).suffix}")
             file_to_generate_on = pd.read_csv(
                 file_in, ";", encoding="utf-8", dtype="str"
             )
 
         elif Path(file_in).suffix == ".xlsx":
-            ic(Path(file_in).suffix)
+            logger.debug(f"suffix: {Path(file_in).suffix}")
             file_to_generate_on = pd.read_excel(file_in, dtype=str, engine="openpyxl")
 
         elif Path(file_in).suffix == ".xls":
-            ic(Path(file_in).suffix)
+            logger.debug(f"suffix: {Path(file_in).suffix}")
             file_to_generate_on = pd.read_excel(file_in, dtype=str)
 
         return file_to_generate_on
