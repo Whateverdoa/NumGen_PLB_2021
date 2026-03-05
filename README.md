@@ -4,8 +4,7 @@ VDP nummer generator voor etiketten productie. Genereert genummerde CSV/Excel be
 
 ## Status
 
-**Migrated to Django** — The core logic has been ported to the Django web app at:
-`/Users/miketenhoonte/PRODUCTION/DJANGO-l02-app03-dev/numgen/`
+**Migrated to Django** — The core logic has been ported to a separate Django web app.
 
 This repository contains the original standalone PyQt5 version (previously PySimpleGUI).
 
@@ -28,7 +27,7 @@ This repository contains the original standalone PyQt5 version (previously PySim
 
 ## Django version
 
-The Django port lives at `/Users/miketenhoonte/PRODUCTION/DJANGO-l02-app03-dev/numgen/` and includes:
+The Django port includes:
 - Web form with 28 fields (order, numbers, rolls, slicing, templates, SSCC, language)
 - Job tracking with history and artifact downloads
 - 95 automated tests (`uv run pytest numgen/ -v`)
