@@ -1,5 +1,7 @@
 """Nummer Generator PLB2021"""
 
+import builtins
+import io
 import json
 import os
 import pickle
@@ -25,6 +27,27 @@ from calculations.calculations import (
 from calculations.character_template import *
 
 from pathlib import Path
+
+
+class RestrictedUnpickler(pickle.Unpickler):
+    """Unpickler that only allows safe built-in types to prevent arbitrary code execution."""
+
+    SAFE_BUILTINS = frozenset({
+        'dict', 'list', 'tuple', 'set', 'frozenset',
+        'str', 'bytes', 'bytearray',
+        'int', 'float', 'complex', 'bool',
+        'type', 'slice', 'range',
+    })
+
+    def find_class(self, module, name):
+        if module == 'builtins' and name in self.SAFE_BUILTINS:
+            return getattr(builtins, name)
+        raise pickle.UnpicklingError(f"Forbidden type: {module}.{name}")
+
+
+def _safe_pickle_loads(data: bytes):
+    """Load pickle data with restricted types to prevent arbitrary code execution."""
+    return RestrictedUnpickler(io.BytesIO(data)).load()
 
 
 class NummerGeneratorWindow(QWidget):
@@ -334,11 +357,11 @@ class NummerGeneratorWindow(QWidget):
             pass
 
         try:
-            values = pickle.loads(raw)
+            values = _safe_pickle_loads(raw)
             if not isinstance(values, dict):
                 raise ValueError("Pickle settings must contain a dictionary")
             return values
-        except Exception as exc:
+        except (pickle.UnpicklingError, EOFError, KeyError, TypeError, AttributeError) as exc:
             raise ValueError("Could not read settings as JSON or pickle") from exc
 
     def on_load_settings(self):
