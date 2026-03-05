@@ -1,0 +1,25 @@
+[project]
+name = "numgen-plb-2021"
+version = "0.1.0"
+description = "VDP nummer generator voor etiketten productie"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "checkdigit==0.3.0",
+  "loguru",
+  "numpy",
+  "openpyxl",
+  "pandas",
+  "pyqt5",
+  "python-dateutil",
+  "xlrd==2.0.1",
+  "xlwt==1.3.0",
+]
+
+[dependency-groups]
+dev = [
+  "pytest",
+]
+
+[tool.uv]
+package = false
