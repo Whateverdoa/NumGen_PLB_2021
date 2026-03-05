@@ -2,6 +2,7 @@
 
 import json
 import os
+import pickle
 import sys
 
 import pandas as pd
@@ -12,7 +13,7 @@ import xlwt
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QHBoxLayout, QFormLayout,
     QLabel, QLineEdit, QPushButton, QCheckBox, QRadioButton,
-    QGroupBox, QFileDialog, QButtonGroup,
+    QGroupBox, QFileDialog, QButtonGroup, QMessageBox,
 )
 
 from data.data_definitions import *
@@ -320,11 +321,39 @@ class NummerGeneratorWindow(QWidget):
             with open(filename, "w") as f:
                 json.dump(values, f, indent=2)
 
+    def _load_settings_file(self, filename):
+        with open(filename, "rb") as f:
+            raw = f.read()
+
+        try:
+            values = json.loads(raw.decode("utf-8"))
+            if not isinstance(values, dict):
+                raise ValueError("JSON settings must be an object")
+            return values
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            pass
+
+        try:
+            values = pickle.loads(raw)
+            if not isinstance(values, dict):
+                raise ValueError("Pickle settings must contain a dictionary")
+            return values
+        except Exception as exc:
+            raise ValueError("Could not read settings as JSON or pickle") from exc
+
     def on_load_settings(self):
         filename, _ = QFileDialog.getOpenFileName(self, "Load Settings")
         if filename:
-            with open(filename, "r") as f:
-                values = json.load(f)
+            try:
+                values = self._load_settings_file(filename)
+            except Exception as exc:
+                logger.exception(f"Failed to load settings from {filename}")
+                QMessageBox.critical(
+                    self,
+                    "Load Settings Error",
+                    f"Could not load settings file:\n{filename}\n\n{exc}",
+                )
+                return
             self.set_values(values)
 
     def on_ok(self):
