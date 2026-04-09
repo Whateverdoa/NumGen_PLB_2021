@@ -178,6 +178,86 @@ def headers_for_totaal_kolommen(dataframe_rol, mes):
     return kolom_naam_lijst_naar_mes
 
 
+def _find_column_case_insensitive(columns, target_name):
+    for kolom in columns:
+        if str(kolom).strip().lower() == target_name.lower():
+            return kolom
+    return None
+
+
+def normalize_input_dataframe_for_numgen(dataframe_in):
+    dataframe_uit = dataframe_in.copy()
+    dataframe_uit.columns = [str(kolom).strip() for kolom in dataframe_uit.columns]
+
+    kolom_name = _find_column_case_insensitive(dataframe_uit.columns, "Kolom")
+    if kolom_name is None:
+        kolom1_name = _find_column_case_insensitive(dataframe_uit.columns, "kolom1")
+        if kolom1_name is not None:
+            dataframe_uit = dataframe_uit.rename(columns={kolom1_name: "Kolom"})
+        elif len(dataframe_uit.columns) > 0:
+            eerste_kolom = dataframe_uit.columns[0]
+            logger.warning(
+                f"Kolom header ontbreekt. Gebruik eerste kolom '{eerste_kolom}' als 'Kolom'."
+            )
+            dataframe_uit = dataframe_uit.rename(columns={eerste_kolom: "Kolom"})
+        else:
+            raise ValueError("Inputbestand bevat geen kolommen.")
+    elif kolom_name != "Kolom":
+        dataframe_uit = dataframe_uit.rename(columns={kolom_name: "Kolom"})
+
+    pdf_name = _find_column_case_insensitive(dataframe_uit.columns, "pdf")
+    if pdf_name is not None and pdf_name != "pdf":
+        dataframe_uit = dataframe_uit.rename(columns={pdf_name: "pdf"})
+    if "pdf" not in dataframe_uit.columns:
+        dataframe_uit["pdf"] = "leeg.pdf"
+
+    omschrijving_name = _find_column_case_insensitive(
+        dataframe_uit.columns, "omschrijving"
+    )
+    if omschrijving_name is not None and omschrijving_name != "omschrijving":
+        dataframe_uit = dataframe_uit.rename(
+            columns={omschrijving_name: "omschrijving"}
+        )
+    if "omschrijving" not in dataframe_uit.columns:
+        dataframe_uit["omschrijving"] = ""
+
+    return dataframe_uit.fillna("").astype("str")
+
+
+def assign_vdp_kolom_namen(vdp_dataframe, bron_dataframe, mes, context="VDP"):
+    kolom_namen = headers_for_totaal_kolommen(bron_dataframe, mes)
+    werkelijke_kolommen = vdp_dataframe.shape[1]
+
+    if len(kolom_namen) != werkelijke_kolommen:
+        logger.warning(
+            f"{context}: kolom mismatch verwacht={len(kolom_namen)} werkelijk={werkelijke_kolommen}. "
+            f"Herleid kolommen op basis van VDP-layout."
+        )
+
+        if mes <= 0:
+            raise ValueError(f"{context}: mes moet groter dan 0 zijn, ontvangen: {mes}")
+
+        if werkelijke_kolommen % mes != 0:
+            raise ValueError(
+                f"{context}: aantal kolommen ({werkelijke_kolommen}) is niet deelbaar door mes ({mes})."
+            )
+
+        kolommen_per_baan = werkelijke_kolommen // mes
+        basis_kolommen = vdp_dataframe.columns.to_list()[:kolommen_per_baan]
+        fallback_df = pd.DataFrame(columns=basis_kolommen)
+        kolom_namen = headers_for_totaal_kolommen(fallback_df, mes)
+
+        if len(kolom_namen) != werkelijke_kolommen:
+            raise ValueError(
+                f"{context}: kolomnamen mismatch blijft bestaan. "
+                f"verwacht={werkelijke_kolommen}, opgebouwd={len(kolom_namen)}"
+            )
+
+    vdp_dataframe = vdp_dataframe.copy()
+    vdp_dataframe.columns = kolom_namen
+    return vdp_dataframe, kolom_namen
+
+
 def verdeling_met_slice(funclijst, funcverddeellijst):
     """te verdelen lijst en een lijst met verdeelwaardes in
     uit => lijsten in lijst verdeeld
@@ -327,8 +407,15 @@ def dataframe_from_csv():
             # extra arg = ";"or ","
             logger.debug(f"suffix: {Path(file_in).suffix}")
             file_to_generate_on = pd.read_csv(
-                file_in, ";", encoding="utf-8", dtype="str"
+                file_in, sep=";", encoding="utf-8", dtype="str"
             )
+            if (
+                len(file_to_generate_on.columns) == 1
+                and "," in str(file_to_generate_on.columns[0])
+            ):
+                file_to_generate_on = pd.read_csv(
+                    file_in, sep=",", encoding="utf-8", dtype="str"
+                )
 
         elif Path(file_in).suffix == ".xlsx":
             logger.debug(f"suffix: {Path(file_in).suffix}")

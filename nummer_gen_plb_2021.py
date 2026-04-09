@@ -455,6 +455,13 @@ class NummerGeneratorWindow(QWidget):
             logger.debug(f"te_bewerken_dataframe_voor_plb_2020.head():\n{te_bewerken_dataframe_voor_plb_2020.head()}")
             logger.debug(f"te_bewerken_dataframe_voor_plb_2020.tail():\n{te_bewerken_dataframe_voor_plb_2020.tail()}")
 
+        te_bewerken_dataframe_voor_plb_2020 = normalize_input_dataframe_for_numgen(
+            te_bewerken_dataframe_voor_plb_2020
+        )
+        logger.debug(
+            f"input kolommen na normalisatie: {te_bewerken_dataframe_voor_plb_2020.columns.to_list()}"
+        )
+
         if checkbox_slice_links:
             te_bewerken_dataframe_voor_plb_2020[
                 "slice_links"
@@ -598,7 +605,12 @@ class NummerGeneratorWindow(QWidget):
             # dit maakt een 'vdpblok' van de combinaties en rollen zonder in uitloop
             VDP = stapel_df_baan(lijst_van_lijst_van_alle_rollen)
 
-            VDP.columns = kolom_namen
+            VDP, kolom_namen = assign_vdp_kolom_namen(
+                VDP,
+                te_bewerken_dataframe_voor_plb_2020,
+                mes,
+                "single-vdp",
+            )
             logger.debug(f"kolom_namen: {kolom_namen}")
             logger.debug(f"VDP.dtypes: {VDP.dtypes}")
             ################################################
@@ -685,7 +697,12 @@ class NummerGeneratorWindow(QWidget):
                 logger.debug(f"htmlnaam: {htmlnaam}")
 
                 verwerkte_vdp = stapel_df_baan(vdp)
-                verwerkte_vdp.columns = kolom_namen
+                verwerkte_vdp, kolom_namen = assign_vdp_kolom_namen(
+                    verwerkte_vdp,
+                    te_bewerken_dataframe_voor_plb_2020,
+                    mes,
+                    f"multi-vdp-{count + 1}",
+                )
                 logger.debug(f"kolom_namen: {kolom_namen}")
                 meterlijst.append(vdp_meters_uit_df_shape(verwerkte_vdp,hoogte))
 
