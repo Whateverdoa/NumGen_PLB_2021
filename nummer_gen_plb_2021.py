@@ -461,6 +461,19 @@ class NummerGeneratorWindow(QWidget):
         logger.debug(
             f"input kolommen na normalisatie: {te_bewerken_dataframe_voor_plb_2020.columns.to_list()}"
         )
+        if values["csv_file_checkbox"]:
+            te_bewerken_dataframe_voor_plb_2020, pad_info = (
+                pad_csv_dataframe_to_full_mes_rollen(
+                    te_bewerken_dataframe_voor_plb_2020, mes, aantal_per_rol
+                )
+            )
+            if pad_info["pad_total"] > 0:
+                logger.info(
+                    "CSV padded met "
+                    f"{pad_info['pad_total']} stans-rijen "
+                    f"(partial={pad_info['pad_partial']}, full={pad_info['pad_full']}); "
+                    f"rollen_na_pad={pad_info['totaal_rollen_na_pad']}"
+                )
 
         if checkbox_slice_links:
             te_bewerken_dataframe_voor_plb_2020[

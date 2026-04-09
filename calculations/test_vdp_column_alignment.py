@@ -6,6 +6,7 @@ from calculations.calculations import (
     lijst_opbreker,
     maak_csv_naar_dataframe,
     normalize_input_dataframe_for_numgen,
+    pad_csv_dataframe_to_full_mes_rollen,
     stapel_df_baan,
 )
 from data.data_definitions import rol_van_generators
@@ -89,3 +90,47 @@ def test_dataframe_from_csv_handles_semicolon_and_comma(tmp_path):
     assert comma_df.shape == (2, 3)
     assert semicolon_df.columns.to_list() == ["Kolom", "pdf", "omschrijving"]
     assert comma_df.columns.to_list() == ["Kolom", "pdf", "omschrijving"]
+
+
+def test_pad_csv_dataframe_partial_roll_only():
+    bron = pd.DataFrame(
+        {
+            "Kolom": [str(x) for x in range(10)],
+            "pdf": ["leeg.pdf"] * 10,
+            "omschrijving": [""] * 10,
+        },
+        dtype="str",
+    )
+
+    uit, info = pad_csv_dataframe_to_full_mes_rollen(bron, mes=4, aantal_per_rol=3)
+
+    assert info == {
+        "pad_total": 2,
+        "pad_partial": 2,
+        "pad_full": 0,
+        "totaal_rollen_na_pad": 4,
+    }
+    assert len(uit) == 12
+    assert uit.iloc[-1]["pdf"] == "stans.pdf"
+
+
+def test_pad_csv_dataframe_partial_and_full_rolls():
+    bron = pd.DataFrame(
+        {
+            "Kolom": [str(x) for x in range(13)],
+            "pdf": ["leeg.pdf"] * 13,
+            "omschrijving": [""] * 13,
+        },
+        dtype="str",
+    )
+
+    uit, info = pad_csv_dataframe_to_full_mes_rollen(bron, mes=4, aantal_per_rol=3)
+
+    assert info == {
+        "pad_total": 11,
+        "pad_partial": 2,
+        "pad_full": 9,
+        "totaal_rollen_na_pad": 8,
+    }
+    assert len(uit) == 24
+    assert (uit.iloc[-11:]["pdf"] == "stans.pdf").all()

@@ -224,6 +224,47 @@ def normalize_input_dataframe_for_numgen(dataframe_in):
     return dataframe_uit.fillna("").astype("str")
 
 
+def pad_csv_dataframe_to_full_mes_rollen(dataframe_in, mes, aantal_per_rol):
+    if mes <= 0:
+        raise ValueError(f"mes moet groter dan 0 zijn, ontvangen: {mes}")
+    if aantal_per_rol <= 0:
+        raise ValueError(
+            f"aantal_per_rol moet groter dan 0 zijn, ontvangen: {aantal_per_rol}"
+        )
+
+    totaal_rijen = len(dataframe_in)
+    volledige_rollen, rest_rijen = divmod(totaal_rijen, aantal_per_rol)
+    totaal_rollen = volledige_rollen + (1 if rest_rijen > 0 else 0)
+    rest_rollen = (mes - (totaal_rollen % mes)) % mes if totaal_rollen > 0 else 0
+
+    pad_partial = (aantal_per_rol - rest_rijen) % aantal_per_rol
+    pad_full = rest_rollen * aantal_per_rol
+    pad_total = pad_partial + pad_full
+
+    if pad_total == 0:
+        return dataframe_in, {
+            "pad_total": 0,
+            "pad_partial": 0,
+            "pad_full": 0,
+            "totaal_rollen_na_pad": totaal_rollen,
+        }
+
+    filler_rij = {kolom: "" for kolom in dataframe_in.columns}
+    if "pdf" in filler_rij:
+        filler_rij["pdf"] = "stans.pdf"
+
+    pad_df = pd.DataFrame([filler_rij] * pad_total, columns=dataframe_in.columns)
+    dataframe_uit = pd.concat([dataframe_in, pad_df], ignore_index=True)
+
+    totaal_rollen_na_pad = len(dataframe_uit) // aantal_per_rol
+    return dataframe_uit.fillna("").astype("str"), {
+        "pad_total": pad_total,
+        "pad_partial": pad_partial,
+        "pad_full": pad_full,
+        "totaal_rollen_na_pad": totaal_rollen_na_pad,
+    }
+
+
 def assign_vdp_kolom_namen(vdp_dataframe, bron_dataframe, mes, context="VDP"):
     kolom_namen = headers_for_totaal_kolommen(bron_dataframe, mes)
     werkelijke_kolommen = vdp_dataframe.shape[1]
